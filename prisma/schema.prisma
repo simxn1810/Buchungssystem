@@ -1,0 +1,103 @@
+// Prisma-Schema fuer das Buchungssystem des TC Frankenau 1978 e.V.
+//
+// MVP nutzt SQLite. Fuer Produktion auf PostgreSQL wechseln:
+//   provider = "postgresql"
+// und DATABASE_URL anpassen. Das Schema selbst bleibt unveraendert
+// (es werden bewusst keine SQLite-spezifischen Features genutzt; Enums sind
+// als String modelliert, damit SQLite und PostgreSQL gleich funktionieren).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Platz {
+  id    Int    @id @default(autoincrement())
+  name  String
+  typ   String // "tennis" | "squash"
+  aktiv Boolean @default(true)
+
+  buchungen  Buchung[]
+  belegungen Belegung[]
+  sperrungen Sperrung[]
+}
+
+model Buchung {
+  id                  Int      @id @default(autoincrement())
+  platz               Platz    @relation(fields: [platzId], references: [id])
+  platzId             Int
+  datum               String   // "YYYY-MM-DD"
+  startzeit           String   // "HH:MM"
+  dauerMinuten        Int      // Vielfaches von 15
+  name                String
+  kontakt             String   // E-Mail oder Telefonnummer
+  kontaktTyp          String   // "email" | "telefon"
+  mitglied            Boolean  @default(false)
+  leihschlaegerAnzahl Int      @default(0)
+  baelle              Boolean  @default(false)
+  ermaessigung        Boolean  @default(false)
+  gesamtpreisCent     Int      // berechnete Gesamtsumme in Cent
+  status              String   @default("ausstehend") // "ausstehend" | "bestaetigt" | "storniert"
+  code                String?
+  codeAblauf          DateTime?
+  stornoToken         String   @unique
+  erstelltAm          DateTime @default(now())
+
+  belegungen Belegung[]
+
+  @@index([datum])
+  @@index([status])
+}
+
+model Belegung {
+  id        Int     @id @default(autoincrement())
+  buchung   Buchung @relation(fields: [buchungId], references: [id], onDelete: Cascade)
+  buchungId Int
+  platz     Platz   @relation(fields: [platzId], references: [id])
+  platzId   Int
+  datum     String  // "YYYY-MM-DD"
+  slot      String  // "HH:MM" (15-Minuten-Startzeit)
+
+  // Verhindert Doppelbuchung auf Datenbankebene.
+  @@unique([platzId, datum, slot])
+  @@index([datum])
+}
+
+model Sperrung {
+  id         Int      @id @default(autoincrement())
+  platz      Platz?   @relation(fields: [platzId], references: [id])
+  platzId    Int? // null = alle Plaetze
+  datum      String   // "YYYY-MM-DD"
+  slot       String   // "HH:MM" (15-Minuten-Schritt)
+  grund      String
+  erstelltAm DateTime @default(now())
+
+  @@index([datum])
+}
+
+// Tuer-/Zugangscode der Halle je Wochentag. Wird dem Kunden nach Bestaetigung
+// der Buchung passend zum Buchungstag mitgeteilt. Sa und So teilen sich einen
+// Code (Schluessel "wochenende").
+model Zugangscode {
+  id             Int      @id @default(autoincrement())
+  wochentag      String   @unique // "montag".."freitag" | "wochenende"
+  code           String
+  aktualisiertAm DateTime @updatedAt
+}
+
+model Tarif {
+  id              Int    @id @default(autoincrement())
+  sportart        String // "tennis" | "squash"
+  saison          String // "winter" | "sommer"
+  mitglied        Boolean
+  wochentagGruppe String // "werktags" | "wochenende"
+  zeitVon         String // "HH:MM"
+  zeitBis         String // "HH:MM"
+  preisProStundeCent Int
+
+  @@index([sportart, saison])
+}
