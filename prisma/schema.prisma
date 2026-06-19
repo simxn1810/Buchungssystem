@@ -1,17 +1,16 @@
 // Prisma-Schema fuer das Buchungssystem des TC Frankenau 1978 e.V.
 //
-// MVP nutzt SQLite. Fuer Produktion auf PostgreSQL wechseln:
-//   provider = "postgresql"
-// und DATABASE_URL anpassen. Das Schema selbst bleibt unveraendert
-// (es werden bewusst keine SQLite-spezifischen Features genutzt; Enums sind
-// als String modelliert, damit SQLite und PostgreSQL gleich funktionieren).
+// Produktion nutzt PostgreSQL (z. B. Neon). Fuer rein lokale Entwicklung kann
+// provider = "sqlite" mit DATABASE_URL="file:./dev.db" verwendet werden; das
+// Schema selbst bleibt gleich (keine DB-spezifischen Features; Enums sind als
+// String modelliert, damit SQLite und PostgreSQL gleich funktionieren).
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
