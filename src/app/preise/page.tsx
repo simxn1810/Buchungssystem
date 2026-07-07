@@ -139,10 +139,6 @@ export default function PreisePage() {
             <strong>Schlägerleihe:</strong> 1,- € pro Stunde und Schläger.
           </li>
         </ul>
-        <p className="mt-3 text-xs text-gray-500">
-          Anmerkung: Ein gesonderter Mitgliederrabatt ist in dieser Übersicht nicht berücksichtigt –
-          Mitglieder und Gäste zahlen denselben Preis.
-        </p>
       </section>
 
       <p className="mb-6 text-xs text-gray-500">
