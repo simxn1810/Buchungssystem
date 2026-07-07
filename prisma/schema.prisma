@@ -23,6 +23,7 @@ model Platz {
   buchungen  Buchung[]
   belegungen Belegung[]
   sperrungen Sperrung[]
+  abos       Abo[]
 }
 
 model Buchung {
@@ -99,4 +100,25 @@ model Tarif {
   preisProStundeCent Int
 
   @@index([sportart, saison])
+}
+
+// Wiederkehrende Reservierung (Abo). Blockiert einen Platz an einem festen
+// Wochentag in einem Zeitfenster ueber einen Datumszeitraum, z. B. jeden
+// Dienstag 19:00-20:00 vom 01.10. bis 31.03. (Mannschaftstraining o. ae.).
+// Die Belegung wird nicht materialisiert, sondern bei der Verfuegbarkeits-
+// pruefung dynamisch beruecksichtigt.
+model Abo {
+  id         Int      @id @default(autoincrement())
+  platz      Platz    @relation(fields: [platzId], references: [id])
+  platzId    Int
+  wochentag  Int      // 0=So .. 6=Sa (analog JS getUTCDay)
+  zeitVon    String   // "HH:MM"
+  zeitBis    String   // "HH:MM"
+  datumVon   String   // "YYYY-MM-DD" (inklusive)
+  datumBis   String   // "YYYY-MM-DD" (inklusive)
+  titel      String
+  erstelltAm DateTime @default(now())
+
+  @@index([wochentag])
+  @@index([platzId])
 }

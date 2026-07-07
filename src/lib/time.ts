@@ -101,6 +101,30 @@ export function wochentagGruppe(datum: string): "werktags" | "wochenende" {
   return tag === 0 || tag === 6 ? "wochenende" : "werktags";
 }
 
+// Wochentag als Zahl (0=So ... 6=Sa, analog JS getUTCDay). Wird fuer Abos genutzt.
+export function wochentagNummer(datum: string): number {
+  const [y, m, d] = datum.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+}
+
+// Montag (ISO-Wochenstart) der Woche, in der das Datum liegt, als "YYYY-MM-DD".
+export function montagDerWoche(datum: string): string {
+  const [y, m, d] = datum.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  const tag = dt.getUTCDay(); // 0=So ... 6=Sa
+  const diff = tag === 0 ? -6 : 1 - tag; // zurueck auf Montag
+  dt.setUTCDate(dt.getUTCDate() + diff);
+  return dt.toISOString().slice(0, 10);
+}
+
+// Datum n Tage nach dem angegebenen Datum als "YYYY-MM-DD".
+export function datumPlusTageAb(datum: string, tage: number): string {
+  const [y, m, d] = datum.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() + tage);
+  return dt.toISOString().slice(0, 10);
+}
+
 // Wochentag-Schluessel fuer den Zugangscode der Halle.
 // Mo-Fr sowie Sa und So jeweils einzeln.
 export type WochentagKey =

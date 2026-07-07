@@ -34,6 +34,17 @@ type Tarif = {
   zeitBis: string;
   preisProStundeCent: number;
 };
+type Abo = {
+  id: number;
+  platzId: number;
+  platz: { name: string };
+  wochentag: number;
+  zeitVon: string;
+  zeitBis: string;
+  datumVon: string;
+  datumBis: string;
+  titel: string;
+};
 
 function euro(c: number) {
   return (c / 100).toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -47,9 +58,9 @@ function toMin(z: string) {
 }
 
 export default function AdminApp({ plaetze, heute }: { plaetze: Platz[]; heute: string }) {
-  const [tab, setTab] = useState<"buchungen" | "sperrungen" | "tarife" | "zugangscodes">(
-    "buchungen"
-  );
+  const [tab, setTab] = useState<
+    "buchungen" | "sperrungen" | "abos" | "tarife" | "zugangscodes"
+  >("buchungen");
 
   async function logout() {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -65,9 +76,10 @@ export default function AdminApp({ plaetze, heute }: { plaetze: Platz[]; heute: 
         </button>
       </div>
 
-      <div className="mb-4 flex gap-2">
+      <div className="mb-4 flex flex-wrap gap-2">
         <Tab aktiv={tab === "buchungen"} onClick={() => setTab("buchungen")} label="Buchungen" />
         <Tab aktiv={tab === "sperrungen"} onClick={() => setTab("sperrungen")} label="Sperrzeiten" />
+        <Tab aktiv={tab === "abos"} onClick={() => setTab("abos")} label="Abos" />
         <Tab aktiv={tab === "tarife"} onClick={() => setTab("tarife")} label="Tarife" />
         <Tab
           aktiv={tab === "zugangscodes"}
@@ -78,6 +90,7 @@ export default function AdminApp({ plaetze, heute }: { plaetze: Platz[]; heute: 
 
       {tab === "buchungen" && <BuchungenTab heute={heute} />}
       {tab === "sperrungen" && <SperrungenTab plaetze={plaetze} heute={heute} />}
+      {tab === "abos" && <AbosTab plaetze={plaetze} heute={heute} />}
       {tab === "tarife" && <TarifeTab />}
       {tab === "zugangscodes" && <ZugangscodesTab />}
     </div>
@@ -470,6 +483,200 @@ function ZugangscodesTab() {
         Speichern
       </button>
       {gespeichert && <span className="ml-3 text-sm text-green-700">Gespeichert.</span>}
+    </div>
+  );
+}
+
+// Wochentage als (Nummer analog getUTCDay, Label) – Reihenfolge Mo..So.
+const ABO_WOCHENTAGE: { nummer: number; label: string }[] = [
+  { nummer: 1, label: "Montag" },
+  { nummer: 2, label: "Dienstag" },
+  { nummer: 3, label: "Mittwoch" },
+  { nummer: 4, label: "Donnerstag" },
+  { nummer: 5, label: "Freitag" },
+  { nummer: 6, label: "Samstag" },
+  { nummer: 0, label: "Sonntag" },
+];
+function wochentagLabel(n: number): string {
+  return ABO_WOCHENTAGE.find((w) => w.nummer === n)?.label ?? "?";
+}
+function datumDe(d: string): string {
+  const [y, m, dd] = d.split("-");
+  return `${dd}.${m}.${y}`;
+}
+
+function AbosTab({ plaetze, heute }: { plaetze: Platz[]; heute: string }) {
+  const [platzId, setPlatzId] = useState<string>(plaetze[0] ? String(plaetze[0].id) : "");
+  const [wochentag, setWochentag] = useState<string>("2"); // Dienstag als Beispiel
+  const [von, setVon] = useState("19:00");
+  const [bis, setBis] = useState("20:00");
+  const [datumVon, setDatumVon] = useState(heute);
+  const [datumBis, setDatumBis] = useState(heute);
+  const [titel, setTitel] = useState("");
+  const [abos, setAbos] = useState<Abo[]>([]);
+  const [fehler, setFehler] = useState<string | null>(null);
+
+  const laden = useCallback(async () => {
+    const res = await fetch("/api/admin/abos");
+    const json = await res.json();
+    setAbos(json.abos || []);
+  }, []);
+
+  useEffect(() => {
+    laden();
+  }, [laden]);
+
+  async function anlegen() {
+    setFehler(null);
+    const res = await fetch("/api/admin/abos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        platzId: Number(platzId),
+        wochentag: Number(wochentag),
+        zeitVon: von,
+        zeitBis: bis,
+        datumVon,
+        datumBis,
+        titel,
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      setFehler(json.fehler || "Fehler beim Anlegen.");
+      return;
+    }
+    setTitel("");
+    laden();
+  }
+
+  async function loeschen(id: number) {
+    if (!confirm("Dieses Abo wirklich loeschen?")) return;
+    await fetch(`/api/admin/abos?id=${id}`, { method: "DELETE" });
+    laden();
+  }
+
+  return (
+    <div>
+      <div className="mb-4 rounded border border-gray-200 p-4">
+        <h2 className="mb-3 font-semibold text-verein-blau">Abo anlegen</h2>
+        <p className="mb-3 text-sm text-gray-600">
+          Reserviert einen Platz an einem festen Wochentag in einem Zeitfenster ueber einen
+          Zeitraum (z. B. jeden Dienstag 19–20 Uhr). Die Zeit ist fuer diesen Zeitraum nicht
+          buchbar.
+        </p>
+        <label className="mb-2 block">
+          <span className="text-sm">Platz</span>
+          <select
+            value={platzId}
+            onChange={(e) => setPlatzId(e.target.value)}
+            className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+          >
+            {plaetze.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="mb-2 block">
+          <span className="text-sm">Wochentag</span>
+          <select
+            value={wochentag}
+            onChange={(e) => setWochentag(e.target.value)}
+            className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+          >
+            {ABO_WOCHENTAGE.map((w) => (
+              <option key={w.nummer} value={w.nummer}>
+                {w.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="mb-2 flex gap-2">
+          <label className="flex-1">
+            <span className="text-sm">Von</span>
+            <input
+              type="time"
+              step={900}
+              value={von}
+              onChange={(e) => setVon(e.target.value)}
+              className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+            />
+          </label>
+          <label className="flex-1">
+            <span className="text-sm">Bis</span>
+            <input
+              type="time"
+              step={900}
+              value={bis}
+              onChange={(e) => setBis(e.target.value)}
+              className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+            />
+          </label>
+        </div>
+        <div className="mb-2 flex gap-2">
+          <label className="flex-1">
+            <span className="text-sm">Zeitraum von</span>
+            <input
+              type="date"
+              value={datumVon}
+              onChange={(e) => setDatumVon(e.target.value)}
+              className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+            />
+          </label>
+          <label className="flex-1">
+            <span className="text-sm">Zeitraum bis</span>
+            <input
+              type="date"
+              value={datumBis}
+              onChange={(e) => setDatumBis(e.target.value)}
+              className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+            />
+          </label>
+        </div>
+        <label className="mb-3 block">
+          <span className="text-sm">Bezeichnung</span>
+          <input
+            value={titel}
+            onChange={(e) => setTitel(e.target.value)}
+            placeholder="z. B. Mannschaftstraining, Dauerbuchung Müller"
+            className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+          />
+        </label>
+        {fehler && <p className="mb-2 text-sm text-red-600">{fehler}</p>}
+        <button
+          onClick={anlegen}
+          disabled={!titel}
+          className="w-full rounded bg-verein-blau px-4 py-2 font-semibold text-white disabled:opacity-50"
+        >
+          Abo anlegen
+        </button>
+      </div>
+
+      <h2 className="mb-2 font-semibold text-verein-blau">Bestehende Abos</h2>
+      {abos.length === 0 ? (
+        <p className="text-gray-500">Keine Abos angelegt.</p>
+      ) : (
+        <ul className="space-y-2">
+          {abos.map((a) => (
+            <li key={a.id} className="rounded border border-gray-200 p-3 text-sm">
+              <div className="flex justify-between">
+                <span className="font-semibold">
+                  {a.platz.name} · {wochentagLabel(a.wochentag)} · {a.zeitVon}–{a.zeitBis}
+                </span>
+                <button onClick={() => loeschen(a.id)} className="text-xs text-red-600 underline">
+                  Loeschen
+                </button>
+              </div>
+              <div className="text-gray-600">{a.titel}</div>
+              <div className="text-gray-500">
+                {datumDe(a.datumVon)} – {datumDe(a.datumBis)}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

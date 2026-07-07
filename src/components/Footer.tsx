@@ -24,6 +24,9 @@ export default function Footer() {
           <Link className="text-verein-blau underline" href="/">
             Buchen
           </Link>
+          <Link className="text-verein-blau underline" href="/kalender">
+            Wochenübersicht
+          </Link>
           <Link className="text-verein-blau underline" href="/meine-buchungen">
             Buchung stornieren
           </Link>

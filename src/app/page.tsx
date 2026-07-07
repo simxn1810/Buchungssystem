@@ -28,9 +28,15 @@ export default async function HomePage() {
   return (
     <div>
       <h1 className="mb-1 text-2xl font-bold text-verein-blau">Platz buchen</h1>
-      <p className="mb-6 text-sm text-gray-600">
+      <p className="mb-4 text-sm text-gray-600">
         Tennis &amp; Squash in der Halle. Bezahlung erfolgt vor Ort.
       </p>
+      <a
+        href="/kalender"
+        className="mb-6 inline-block rounded-full border border-verein-blau px-4 py-2 text-sm font-medium text-verein-blau"
+      >
+        Wochen&uuml;bersicht ansehen
+      </a>
       <BuchungsApp plaetze={plaetze} settings={settings} />
     </div>
   );
