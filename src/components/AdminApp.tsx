@@ -413,11 +413,11 @@ function TarifeTab() {
             </tr>
           </thead>
           <tbody>
-            {tarife.map((t) => (
+            {tarife.filter((t) => !t.mitglied).map((t) => (
               <tr key={t.id} className="border-t border-gray-100">
                 <td className="p-1">{t.sportart}</td>
                 <td className="p-1">{t.saison}</td>
-                <td className="p-1">{t.mitglied ? "Mitglied" : "Gast"}</td>
+                <td className="p-1">Gast</td>
                 <td className="p-1">{t.wochentagGruppe}</td>
                 <td className="p-1">
                   {t.zeitVon}–{t.zeitBis}
