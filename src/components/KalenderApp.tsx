@@ -37,10 +37,13 @@ function tagNummer(datum: string): string {
   return String(Number(datum.split("-")[2]));
 }
 
-function zellKlasse(status: ZellStatus): string {
+function zellKlasse(status: ZellStatus, platzIndex = 0): string {
   switch (status) {
     case "frei":
-      return "bg-green-100 text-green-800";
+      // Zwei Grüntöne, um die beiden Plätze zu unterscheiden
+      return platzIndex === 0
+        ? "bg-green-100 text-green-800"
+        : "bg-emerald-300 text-emerald-900";
     case "belegt":
       return "bg-gray-200 text-gray-500";
     case "gesperrt":
@@ -122,7 +125,8 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
       </div>
 
       <div className="mb-3 flex flex-wrap gap-3 text-xs text-gray-600">
-        <Legende klasse="bg-green-100" text="frei" />
+        <Legende klasse="bg-green-100" text="frei (Platz 1)" />
+        <Legende klasse="bg-emerald-300" text="frei (Platz 2)" />
         <Legende klasse="bg-gray-200" text="belegt" />
         <Legende klasse="bg-red-100" text="gesperrt" />
         <Legende klasse="bg-amber-100" text="Abo/Training" />
@@ -142,7 +146,7 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
                     <th
                       key={d}
                       colSpan={daten.plaetze.length}
-                      className="border-l border-gray-200 p-1"
+                      className="border-l-2 border-gray-300 p-1"
                     >
                       <div className={istHeute ? "font-bold text-verein-blau" : "text-gray-600"}>
                         {tagKurz(d)}
@@ -161,7 +165,7 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
                       <th
                         key={`${d}-${p.id}`}
                         className={`p-0.5 text-[10px] font-normal text-gray-400 ${
-                          i === 0 ? "border-l border-gray-200" : ""
+                          i === 0 ? "border-l-2 border-gray-300" : "border-l border-gray-100"
                         }`}
                       >
                         {p.name}
@@ -174,8 +178,8 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
             <tbody>
               {daten.zeiten.map((zeit) => (
                 <tr key={zeit}>
-                  <td className="sticky left-0 bg-white p-1 pr-2 text-right font-medium text-gray-500">
-                    {zeit}
+                  <td className="sticky left-0 bg-white p-1 pr-2 text-right align-top font-medium leading-none text-gray-500">
+                    <span className="-translate-y-1/2 inline-block">{zeit}</span>
                   </td>
                   {daten.tage.map((d) =>
                     daten.plaetze.map((p, i) => {
@@ -183,11 +187,14 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
                       return (
                         <td
                           key={`${d}-${p.id}`}
-                          className={`p-0.5 ${i === 0 ? "border-l border-gray-200" : ""}`}
+                          className={`p-0.5 ${
+                            i === 0 ? "border-l-2 border-gray-300" : "border-l border-gray-100"
+                          }`}
                         >
                           <div
                             className={`rounded py-0.5 text-[10px] font-medium ${zellKlasse(
-                              status ?? "vergangen"
+                              status ?? "vergangen",
+                              i
                             )}`}
                           >
                             {zellInhalt(status ?? "vergangen")}
