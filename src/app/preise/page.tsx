@@ -1,125 +1,152 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
-import { config, VEREIN } from "@/lib/config";
-import { formatEuro } from "@/lib/pricing";
+import { VEREIN } from "@/lib/config";
 
-export const dynamic = "force-dynamic";
 export const metadata = { title: "Preise – TC Frankenau" };
 
-const SPORT_LABEL: Record<string, string> = { tennis: "Tennis", squash: "Squash" };
-const SAISON_LABEL: Record<string, string> = {
-  winter: "Wintersaison (01.10.–30.04.)",
-  sommer: "Sommersaison (01.05.–30.09.)",
+// Preise exakt gemäß offizieller Vereins-Preisliste (PDF). Ganze Euro-Beträge.
+const eur = (n: number) => `${n},- €`;
+
+type WinterRow = {
+  label: string;
+  tennis: [number, number | null, number]; // Abo, 10er-Abo, Einzelstunde
+  squash: [number, number]; // Abo, Einzelstunde
 };
 
-export default async function PreisePage() {
-  // Einzelstunde: keine Mitglied/Gast-Trennung -> wir lesen nur die
-  // Mitglied-Zeilen (identisch zu Gast).
-  const tarife = await prisma.tarif.findMany({
-    where: { mitglied: true },
-    orderBy: [{ sportart: "asc" }, { saison: "asc" }, { zeitVon: "asc" }],
-  });
+// Wintersaison 2025/2026 (01. Oktober 2025 bis 30. April 2026)
+const WINTER: WinterRow[] = [
+  { label: "08:00 – 14:00", tennis: [17, 18, 19], squash: [11, 13] },
+  { label: "14:00 – 18:00", tennis: [19, 20, 21], squash: [11, 13] },
+  { label: "18:00 – 21:00", tennis: [22, null, 24], squash: [13, 15] },
+  { label: "21:00 – 00:00", tennis: [17, 18, 19], squash: [11, 13] },
+  { label: "Samstag & Sonntag", tennis: [17, 18, 19], squash: [11, 13] },
+];
 
-  // Struktur: sportart -> saison -> { werktags: Fenster[], wochenendeCent: number|null }
-  type Fenster = { von: string; bis: string; cent: number };
-  type Saison = { werktags: Fenster[]; wochenendeCent: number | null };
-  const struktur: Record<string, Record<string, Saison>> = {};
+// Sommersaison 2026: Einheitspreis über alle Zeiten und Abo-Arten
+const SOMMER_ROWS = ["08:00 – 14:00", "14:00 – 18:00", "18:00 – 21:00", "21:00 – 00:00", "Samstag & Sonntag"];
+const SOMMER_TENNIS = 12;
+const SOMMER_SQUASH = 10;
 
-  for (const t of tarife) {
-    const sp = (struktur[t.sportart] ??= {});
-    const sa = (sp[t.saison] ??= { werktags: [], wochenendeCent: null });
-    if (t.wochentagGruppe === "wochenende") {
-      sa.wochenendeCent = t.preisProStundeCent;
-    } else {
-      sa.werktags.push({ von: t.zeitVon, bis: t.zeitBis, cent: t.preisProStundeCent });
-    }
-  }
+const th = "border border-gray-300 p-2 text-center align-middle";
+const td = "border border-gray-300 p-2 text-center align-middle";
+const tdLabel = "border border-gray-300 p-2 text-center align-middle font-semibold text-verein-blau whitespace-nowrap";
 
+export default function PreisePage() {
   return (
     <div>
       <h1 className="mb-1 text-2xl font-bold text-verein-blau">Preise</h1>
       <p className="mb-6 text-sm text-gray-600">
-        Alle Preise gelten pro Platz und Stunde (Einzelstunde). Abgerechnet wird in
-        15-Minuten-Schritten, d. h. der angezeigte Stundenpreis wird anteilig berechnet. Die
-        Bezahlung erfolgt vor Ort.
+        Alle Preise gelten pro Platz und Stunde. Abgerechnet wird in 15-Minuten-Schritten, d. h. der
+        angezeigte Stundenpreis wird anteilig berechnet. Die Bezahlung erfolgt vor Ort.
       </p>
 
-      {Object.keys(struktur)
-        .sort()
-        .map((sportart) => (
-          <section key={sportart} className="mb-8">
-            <h2 className="mb-3 text-xl font-semibold text-verein-blau">
-              {SPORT_LABEL[sportart] ?? sportart}
-            </h2>
-            {Object.keys(struktur[sportart])
-              .sort()
-              .map((saison) => {
-                const s = struktur[sportart][saison];
-                const fenster = [...s.werktags].sort((a, b) => a.von.localeCompare(b.von));
-                return (
-                  <div key={saison} className="mb-5">
-                    <h3 className="mb-2 text-sm font-semibold text-gray-700">
-                      {SAISON_LABEL[saison] ?? saison}
-                    </h3>
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse text-sm">
-                        <thead>
-                          <tr className="bg-verein-blau text-left text-white">
-                            <th className="p-2">Uhrzeit (Mo–Fr)</th>
-                            <th className="p-2">Preis / Stunde</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {fenster.map((f) => (
-                            <tr key={`${f.von}-${f.bis}`} className="border-b border-gray-200">
-                              <td className="p-2 font-medium">
-                                {f.von}–{f.bis}
-                              </td>
-                              <td className="p-2">{formatEuro(f.cent)} €</td>
-                            </tr>
-                          ))}
-                          {s.wochenendeCent !== null && (
-                            <tr className="border-b border-gray-200 bg-gray-50">
-                              <td className="p-2 font-medium">Sa &amp; So (ganztägig)</td>
-                              <td className="p-2">{formatEuro(s.wochenendeCent)} €</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                );
-              })}
-          </section>
-        ))}
+      {/* Wintersaison */}
+      <section className="mb-8">
+        <h2 className="mb-1 text-xl font-semibold text-verein-blau">Preisliste Wintersaison 2025/2026</h2>
+        <p className="mb-3 text-sm text-gray-600">vom 01. Oktober 2025 bis 30. April 2026</p>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr>
+                <th className={`${th} bg-verein-blau text-white`} rowSpan={2}>
+                  werktags
+                </th>
+                <th className={`${th} bg-verein-blau text-white`} colSpan={3}>
+                  Tennis (Platz/Stunde)
+                </th>
+                <th className={`${th} bg-verein-blau text-white`} colSpan={2}>
+                  Squash
+                </th>
+              </tr>
+              <tr>
+                <th className={`${th} bg-gray-100`}>Abo</th>
+                <th className={`${th} bg-gray-100`}>10er-Abo</th>
+                <th className={`${th} bg-gray-100`}>Einzelstunde</th>
+                <th className={`${th} bg-gray-100`}>Abo</th>
+                <th className={`${th} bg-gray-100`}>Einzelstunde</th>
+              </tr>
+            </thead>
+            <tbody>
+              {WINTER.map((r) => (
+                <tr key={r.label}>
+                  <td className={tdLabel}>{r.label}</td>
+                  <td className={td}>{eur(r.tennis[0])}</td>
+                  <td className={td}>{r.tennis[1] === null ? "–" : eur(r.tennis[1])}</td>
+                  <td className={td}>{eur(r.tennis[2])}</td>
+                  <td className={td}>{eur(r.squash[0])}</td>
+                  <td className={td}>{eur(r.squash[1])}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
+      {/* Sommersaison */}
+      <section className="mb-8">
+        <h2 className="mb-1 text-xl font-semibold text-verein-blau">Preisliste Sommersaison 2026</h2>
+        <p className="mb-3 text-sm text-gray-600">vom 01. Mai 2026 bis 30. September 2026</p>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr>
+                <th className={`${th} bg-verein-blau text-white`} rowSpan={2}>
+                  werktags
+                </th>
+                <th className={`${th} bg-verein-blau text-white`} colSpan={3}>
+                  Tennis (Platz/Stunde)
+                </th>
+                <th className={`${th} bg-verein-blau text-white`} colSpan={2}>
+                  Squash
+                </th>
+              </tr>
+              <tr>
+                <th className={`${th} bg-gray-100`}>Abo</th>
+                <th className={`${th} bg-gray-100`}>10er-Abo</th>
+                <th className={`${th} bg-gray-100`}>Einzelstunde</th>
+                <th className={`${th} bg-gray-100`}>Abo</th>
+                <th className={`${th} bg-gray-100`}>Einzelstunde</th>
+              </tr>
+            </thead>
+            <tbody>
+              {SOMMER_ROWS.map((label, i) => (
+                <tr key={label}>
+                  <td className={tdLabel}>{label}</td>
+                  {i === 0 && (
+                    <td className={`${td} text-2xl font-bold`} colSpan={3} rowSpan={SOMMER_ROWS.length}>
+                      {eur(SOMMER_TENNIS)}
+                    </td>
+                  )}
+                  {i === 0 && (
+                    <td className={`${td} text-2xl font-bold`} colSpan={2} rowSpan={SOMMER_ROWS.length}>
+                      {eur(SOMMER_SQUASH)}
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* Anmerkungen unter den Listen */}
       <section className="mb-8 rounded-lg border border-gray-200 p-4 text-sm">
-        <h2 className="mb-2 text-lg font-semibold text-verein-blau">Rabatte &amp; Zuschläge</h2>
         <ul className="list-disc space-y-1 pl-5">
           <li>
-            <strong>Ermäßigung Schüler/Studenten:</strong> {formatEuro(config.ermaessigungCentProStunde)} € pro
-            Stunde Abzug, werktags bis 17 Uhr sowie samstags und sonntags. Nachweis vor Ort.
+            <strong>Schüler und Studenten:</strong> 2,- € Ermäßigung werktags bis 17 Uhr sowie samstags und
+            sonntags. Nachweis vor Ort.
           </li>
           <li>
-            <strong>Leihschläger:</strong> {formatEuro(config.leihschlaegerCentProStunde)} € pro Schläger und
-            Stunde (anteilig zur gebuchten Dauer).
-          </li>
-          <li>
-            <strong>Bälle:</strong>{" "}
-            {config.ballPreisCent === 0
-              ? "inklusive (kein Aufpreis)"
-              : `${formatEuro(config.ballPreisCent)} € pro Buchung`}
-            .
-          </li>
-          <li>
-            <strong>Zuschläge zu Hauptzeiten</strong> sind bereits in den oben genannten
-            Stundenpreisen (höhere Preise in den Abendfenstern) enthalten.
+            <strong>Schlägerleihe:</strong> 1,- € pro Stunde und Schläger.
           </li>
         </ul>
+        <p className="mt-3 text-xs text-gray-500">
+          Anmerkung: Ein gesonderter Mitgliederrabatt ist in dieser Übersicht nicht berücksichtigt –
+          Mitglieder und Gäste zahlen denselben Preis.
+        </p>
       </section>
 
       <p className="mb-6 text-xs text-gray-500">
-        Maßgeblich ist die offizielle Preisliste des Vereins (Einzelstunde). Bei Fragen:{" "}
+        Maßgeblich ist die offizielle Preisliste des Vereins. Bei Fragen:{" "}
         <a className="text-verein-blau underline" href={`mailto:${VEREIN.email}`}>
           {VEREIN.email}
         </a>
