@@ -18,6 +18,7 @@ export type PreisAufschluesselung = {
   leihschlaegerCent: number;
   ballCent: number;
   ermaessigungCent: number;
+  mitgliedRabattCent: number;
   gesamtCent: number;
 };
 
@@ -54,6 +55,7 @@ function tarifFuerSlot(
 export function berechnePreis(params: PreisParams, tarife: TarifZeile[]): PreisAufschluesselung {
   let platzCent = 0;
   let ermaessigungCent = 0;
+  let mitgliedRabattCent = 0;
 
   for (const slot of params.slots) {
     const tarif = tarifFuerSlot(tarife, {
@@ -71,6 +73,13 @@ export function berechnePreis(params: PreisParams, tarife: TarifZeile[]): PreisA
     }
     // Preis pro 15-Min-Slot = Stundenpreis / 4.
     platzCent += Math.round(tarif.preisProStundeCent / (60 / SLOT_MINUTEN));
+
+    // Mitglieder-Rabatt: fester Nachlass pro Stunde (anteilig je Slot).
+    if (params.mitglied) {
+      mitgliedRabattCent += Math.round(
+        config.mitgliedRabattCentProStunde / (60 / SLOT_MINUTEN)
+      );
+    }
 
     // Ermaessigung (Schueler/Studenten): werktags bis 17 Uhr sowie Sa/So.
     if (params.ermaessigung) {
@@ -90,17 +99,26 @@ export function berechnePreis(params: PreisParams, tarife: TarifZeile[]): PreisA
   );
   const ballCent = params.baelle ? config.ballPreisCent : 0;
 
-  // Ermaessigung darf den Platzpreis nicht ins Negative ziehen.
+  // Rabatte duerfen den Platzpreis nicht ins Negative ziehen.
   const effektiveErmaessigung = Math.min(ermaessigungCent, platzCent);
+  const effektiverMitgliedRabatt = Math.min(
+    mitgliedRabattCent,
+    platzCent - effektiveErmaessigung
+  );
 
   const gesamtCent =
-    platzCent + leihschlaegerCent + ballCent - effektiveErmaessigung;
+    platzCent +
+    leihschlaegerCent +
+    ballCent -
+    effektiveErmaessigung -
+    effektiverMitgliedRabatt;
 
   return {
     platzCent,
     leihschlaegerCent,
     ballCent,
     ermaessigungCent: effektiveErmaessigung,
+    mitgliedRabattCent: effektiverMitgliedRabatt,
     gesamtCent: Math.max(0, gesamtCent),
   };
 }

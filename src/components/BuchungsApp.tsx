@@ -20,6 +20,7 @@ type Preis = {
   leihschlaegerCent: number;
   ballCent: number;
   ermaessigungCent: number;
+  mitgliedRabattCent: number;
   gesamtCent: number;
 };
 
@@ -382,19 +383,6 @@ export default function BuchungsApp({
             : "Der Bestaetigungscode wird per E-Mail versendet."}
         </p>
 
-        {settings.mitgliedAuswahlAktiv && (
-          <fieldset className="mb-3">
-            <span className="text-sm font-medium">Tarif</span>
-            <div className="mt-1 flex gap-2">
-              <ToggleBtn aktiv={mitglied} onClick={() => setMitglied(true)} label="Mitglied" />
-              <ToggleBtn aktiv={!mitglied} onClick={() => setMitglied(false)} label="Gast" />
-            </div>
-            <p className="mt-1 text-xs text-gray-500">
-              Die Mitgliedschaft wird vor Ort kontrolliert.
-            </p>
-          </fieldset>
-        )}
-
         <label className="mb-3 block">
           <span className="text-sm font-medium">Leihschlaeger</span>
           <select
@@ -423,6 +411,17 @@ export default function BuchungsApp({
         <label className="mb-3 flex items-center gap-2">
           <input
             type="checkbox"
+            checked={mitglied}
+            onChange={(e) => setMitglied(e.target.checked)}
+          />
+          <span className="text-sm">
+            Ich bin Mitglied (2,- € pro Stunde Rabatt, vor Ort kontrolliert)
+          </span>
+        </label>
+
+        <label className="mb-3 flex items-center gap-2">
+          <input
+            type="checkbox"
             checked={ermaessigung}
             onChange={(e) => setErmaessigung(e.target.checked)}
           />
@@ -436,6 +435,9 @@ export default function BuchungsApp({
               <Zeile label="Leihschlaeger" wert={`${euro(preis.leihschlaegerCent)} €`} />
             )}
             {preis.ballCent > 0 && <Zeile label="Baelle" wert={`${euro(preis.ballCent)} €`} />}
+            {preis.mitgliedRabattCent > 0 && (
+              <Zeile label="Mitglieder-Rabatt" wert={`– ${euro(preis.mitgliedRabattCent)} €`} />
+            )}
             {preis.ermaessigungCent > 0 && (
               <Zeile label="Ermaessigung" wert={`– ${euro(preis.ermaessigungCent)} €`} />
             )}

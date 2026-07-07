@@ -8,6 +8,11 @@ const tarife: TarifZeile[] = [
   { sportart: "tennis", saison: "winter", mitglied: false, wochentagGruppe: "werktags", zeitVon: "14:00", zeitBis: "18:00", preisProStundeCent: 2100 },
   { sportart: "tennis", saison: "winter", mitglied: false, wochentagGruppe: "werktags", zeitVon: "18:00", zeitBis: "21:00", preisProStundeCent: 2400 },
   { sportart: "tennis", saison: "winter", mitglied: false, wochentagGruppe: "werktags", zeitVon: "21:00", zeitBis: "23:00", preisProStundeCent: 1900 },
+  // Mitglied = Gast (identische Preise), damit der Tarif-Lookup fuer Mitglieder greift.
+  { sportart: "tennis", saison: "winter", mitglied: true, wochentagGruppe: "werktags", zeitVon: "07:00", zeitBis: "14:00", preisProStundeCent: 1900 },
+  { sportart: "tennis", saison: "winter", mitglied: true, wochentagGruppe: "werktags", zeitVon: "14:00", zeitBis: "18:00", preisProStundeCent: 2100 },
+  { sportart: "tennis", saison: "winter", mitglied: true, wochentagGruppe: "werktags", zeitVon: "18:00", zeitBis: "21:00", preisProStundeCent: 2400 },
+  { sportart: "tennis", saison: "winter", mitglied: true, wochentagGruppe: "werktags", zeitVon: "21:00", zeitBis: "23:00", preisProStundeCent: 1900 },
 ];
 
 function basis(slotsStart: string, dauer: number) {
@@ -67,6 +72,14 @@ describe("Preisberechnung", () => {
     );
     expect(p.ermaessigungCent).toBe(0);
     expect(p.gesamtCent).toBe(2400);
+  });
+
+  it("zieht Mitglieder-Rabatt von 2 EUR pro Stunde ab", () => {
+    // 18:00-19:00 als Mitglied: Platz 2400, Rabatt 4*50=200 -> 2200.
+    const p = berechnePreis({ ...basis("18:00", 60), mitglied: true }, tarife);
+    expect(p.platzCent).toBe(2400);
+    expect(p.mitgliedRabattCent).toBe(200);
+    expect(p.gesamtCent).toBe(2200);
   });
 
   it("wirft einen Fehler, wenn kein Tarif passt", () => {

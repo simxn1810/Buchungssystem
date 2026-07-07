@@ -30,6 +30,7 @@ export const config = {
   leihschlaegerCentProStunde: num("LEIHSCHLAEGER_CENT_PRO_STUNDE", 100),
   ballPreisCent: num("BALL_PREIS_CENT", 0),
   ermaessigungCentProStunde: num("ERMAESSIGUNG_CENT_PRO_STUNDE", 200),
+  mitgliedRabattCentProStunde: num("MITGLIED_RABATT_CENT_PRO_STUNDE", 200),
   adminPasswort: str("ADMIN_PASSWORD", ""),
 };
 

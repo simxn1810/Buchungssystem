@@ -132,6 +132,9 @@ export default function PreisePage() {
       <section className="mb-8 rounded-lg border border-gray-200 p-4 text-sm">
         <ul className="list-disc space-y-1 pl-5">
           <li>
+            <strong>Mitglieder:</strong> 2,- € Rabatt pro Stunde. Mitgliedschaft wird vor Ort kontrolliert.
+          </li>
+          <li>
             <strong>Schüler und Studenten:</strong> 2,- € Ermäßigung werktags bis 17 Uhr sowie samstags und
             sonntags. Nachweis vor Ort.
           </li>
