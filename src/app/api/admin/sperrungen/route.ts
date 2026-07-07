@@ -31,9 +31,17 @@ export async function POST(req: NextRequest) {
   const von = String(body.von || "");
   const bis = String(body.bis || "");
   const grund = String(body.grund || "").trim();
-  const platzId = body.platzId === null || body.platzId === "" || body.platzId === undefined
-    ? null
-    : Number(body.platzId);
+
+  // platzIds (Array) hat Vorrang, sonst einzelnes platzId; null = alle Plaetze.
+  let platzIds: (number | null)[];
+  if (Array.isArray(body.platzIds)) {
+    platzIds = body.platzIds.map((p: unknown) => Number(p));
+  } else {
+    const platzId = body.platzId === null || body.platzId === "" || body.platzId === undefined
+      ? null
+      : Number(body.platzId);
+    platzIds = [platzId];
+  }
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(datum) || !/^\d{2}:\d{2}$/.test(von) || !/^\d{2}:\d{2}$/.test(bis)) {
     return NextResponse.json({ fehler: "Ungueltige Eingabe." }, { status: 400 });
@@ -49,10 +57,12 @@ export async function POST(req: NextRequest) {
   }
 
   await prisma.sperrung.createMany({
-    data: slots.map((slot) => ({ platzId, datum, slot, grund })),
+    data: platzIds.flatMap((platzId) =>
+      slots.map((slot) => ({ platzId, datum, slot, grund }))
+    ),
   });
 
-  return NextResponse.json({ ok: true, anzahl: slots.length });
+  return NextResponse.json({ ok: true, anzahl: slots.length * platzIds.length });
 }
 
 export async function DELETE(req: NextRequest) {

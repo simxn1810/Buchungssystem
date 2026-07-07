@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-type Platz = { id: number; name: string };
+type Platz = { id: number; name: string; typ: string };
 type Buchung = {
   id: number;
   platz: { name: string };
@@ -98,17 +98,19 @@ export default function AdminApp({ plaetze, heute }: { plaetze: Platz[]; heute: 
 }
 
 function BuchungenTab({ heute }: { heute: string }) {
+  const [modus, setModus] = useState<"tag" | "alle">("tag");
   const [datum, setDatum] = useState(heute);
   const [buchungen, setBuchungen] = useState<Buchung[]>([]);
   const [lade, setLade] = useState(false);
 
   const laden = useCallback(async () => {
     setLade(true);
-    const res = await fetch(`/api/admin/buchungen?datum=${datum}`);
+    const url = modus === "alle" ? "/api/admin/buchungen" : `/api/admin/buchungen?datum=${datum}`;
+    const res = await fetch(url);
     const json = await res.json();
     setBuchungen(json.buchungen || []);
     setLade(false);
-  }, [datum]);
+  }, [datum, modus]);
 
   useEffect(() => {
     laden();
@@ -122,26 +124,50 @@ function BuchungenTab({ heute }: { heute: string }) {
 
   return (
     <div>
-      <label className="mb-4 block">
-        <span className="text-sm font-medium">Tag</span>
-        <input
-          type="date"
-          value={datum}
-          onChange={(e) => setDatum(e.target.value)}
-          className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
-        />
-      </label>
+      <div className="mb-3 flex gap-2">
+        <button
+          onClick={() => setModus("tag")}
+          className={`rounded-full px-3 py-1 text-sm font-medium ${
+            modus === "tag" ? "bg-verein-blau text-white" : "bg-gray-100 text-gray-700"
+          }`}
+        >
+          Ein Tag
+        </button>
+        <button
+          onClick={() => setModus("alle")}
+          className={`rounded-full px-3 py-1 text-sm font-medium ${
+            modus === "alle" ? "bg-verein-blau text-white" : "bg-gray-100 text-gray-700"
+          }`}
+        >
+          Alle Buchungen
+        </button>
+      </div>
+
+      {modus === "tag" && (
+        <label className="mb-4 block">
+          <span className="text-sm font-medium">Tag</span>
+          <input
+            type="date"
+            value={datum}
+            onChange={(e) => setDatum(e.target.value)}
+            className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+          />
+        </label>
+      )}
 
       {lade ? (
         <p className="text-gray-500">Lade…</p>
       ) : buchungen.length === 0 ? (
-        <p className="text-gray-500">Keine Buchungen an diesem Tag.</p>
+        <p className="text-gray-500">
+          {modus === "alle" ? "Keine Buchungen vorhanden." : "Keine Buchungen an diesem Tag."}
+        </p>
       ) : (
         <ul className="space-y-2">
           {buchungen.map((b) => (
             <li key={b.id} className="rounded border border-gray-200 p-3 text-sm">
               <div className="flex justify-between">
                 <span className="font-semibold">
+                  {modus === "alle" && `${datumDe(b.datum)} · `}
                   {b.platz.name} · {b.startzeit}–{minTo(toMin(b.startzeit) + b.dauerMinuten)}
                 </span>
                 <span
@@ -192,18 +218,20 @@ function SperrungenTab({ plaetze, heute }: { plaetze: Platz[]; heute: string }) 
     laden();
   }, [laden]);
 
+  const tennisIds = plaetze.filter((p) => p.typ === "tennis").map((p) => p.id);
+
   async function anlegen() {
     setFehler(null);
+    const body: Record<string, unknown> = { datum, von, bis, grund };
+    if (platzId === "tennis-alle") {
+      body.platzIds = tennisIds;
+    } else {
+      body.platzId = platzId === "" ? null : Number(platzId);
+    }
     const res = await fetch("/api/admin/sperrungen", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        datum,
-        platzId: platzId === "" ? null : Number(platzId),
-        von,
-        bis,
-        grund,
-      }),
+      body: JSON.stringify(body),
     });
     const json = await res.json();
     if (!res.ok) {
@@ -254,6 +282,9 @@ function SperrungenTab({ plaetze, heute }: { plaetze: Platz[]; heute: string }) 
             className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
           >
             <option value="">Alle Plaetze</option>
+            {tennisIds.length >= 2 && (
+              <option value="tennis-alle">Beide Tennisplaetze</option>
+            )}
             {plaetze.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}

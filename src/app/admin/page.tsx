@@ -24,7 +24,7 @@ export default async function AdminPage() {
   const plaetze = await prisma.platz.findMany({
     where: { aktiv: true },
     orderBy: { id: "asc" },
-    select: { id: true, name: true },
+    select: { id: true, name: true, typ: true },
   });
 
   return <AdminApp plaetze={plaetze} heute={heuteISO()} />;
