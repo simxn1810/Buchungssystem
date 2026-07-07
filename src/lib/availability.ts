@@ -108,36 +108,16 @@ export async function slotsFrei(
 // ---------------------------------------------------------------------------
 
 export type ZellStatus = "frei" | "belegt" | "gesperrt" | "abo" | "vergangen";
-export type Zelle = {
-  frei: number; // Anzahl Plaetze, die diese Stunde komplett frei sind
-  gesamt: number; // Anzahl Plaetze der Sportart
-  status: ZellStatus;
-};
 export type WochenUebersicht = {
   tage: string[]; // 7 Datumswerte (Mo..So)
-  stunden: string[]; // Stunden-Startzeiten "HH:MM"
-  // zellen[datum][stunde] = Zelle
-  zellen: Record<string, Record<string, Zelle>>;
+  zeiten: string[]; // 15-Min-Startzeiten "HH:MM"
+  plaetze: { id: number; name: string }[]; // Plaetze der Sportart (Spalten je Tag)
+  // zellen[datum][platzId][zeit] = SlotStatus
+  zellen: Record<string, Record<number, Record<string, SlotStatus>>>;
 };
 
-// Status eines einzelnen Platzes fuer eine ganze Stunde, aggregiert aus den
-// 15-Min-Slots dieser Stunde.
-function stundenStatusFuerPlatz(
-  verf: Record<string, SlotStatus>,
-  stundenSlots: string[]
-): SlotStatus {
-  const stati = stundenSlots.map((s) => verf[s]).filter(Boolean) as SlotStatus[];
-  if (stati.length === 0) return "vergangen";
-  if (stati.every((s) => s === "frei")) return "frei";
-  if (stati.every((s) => s === "vergangen")) return "vergangen";
-  if (stati.some((s) => s === "abo")) return "abo";
-  if (stati.some((s) => s === "gesperrt")) return "gesperrt";
-  return "belegt";
-}
-
 // Wochenuebersicht fuer eine Sportart ("tennis" | "squash") ab dem Montag der
-// Woche, in der startDatum liegt. Pro Tag und Stunde wird aggregiert, wie viele
-// Plaetze die Stunde komplett frei sind.
+// Woche, in der startDatum liegt. Je Tag, Platz und 15-Min-Slot der Status.
 export async function wochenUebersicht(
   typ: string,
   startDatum: string
@@ -150,14 +130,12 @@ export async function wochenUebersicht(
   const plaetze = await prisma.platz.findMany({
     where: { aktiv: true, typ },
     orderBy: { id: "asc" },
-    select: { id: true },
+    select: { id: true, name: true },
   });
 
-  // Volle Stunden aus den buchbaren Slots ableiten (":00"-Slots).
-  const slots = alleSlots();
-  const stunden = slots.filter((s) => zeitTomin(s) % 60 === 0);
+  const zeiten = alleSlots();
 
-  const zellen: Record<string, Record<string, Zelle>> = {};
+  const zellen: Record<string, Record<number, Record<string, SlotStatus>>> = {};
 
   for (const datum of tage) {
     zellen[datum] = {};
@@ -166,29 +144,10 @@ export async function wochenUebersicht(
       plaetze.map((p) => verfuegbarkeitFuerTag(p.id, datum))
     );
 
-    for (const stunde of stunden) {
-      const beginn = zeitTomin(stunde);
-      // Die (bis zu 4) 15-Min-Slots dieser Stunde, die ueberhaupt buchbar sind.
-      const stundenSlots = slots.filter((s) => {
-        const t = zeitTomin(s);
-        return t >= beginn && t < beginn + 60;
-      });
-
-      const platzStati = verfProPlatz.map((verf) =>
-        stundenStatusFuerPlatz(verf, stundenSlots)
-      );
-
-      const frei = platzStati.filter((s) => s === "frei").length;
-      let status: ZellStatus;
-      if (frei > 0) status = "frei";
-      else if (platzStati.every((s) => s === "vergangen")) status = "vergangen";
-      else if (platzStati.some((s) => s === "abo")) status = "abo";
-      else if (platzStati.some((s) => s === "gesperrt")) status = "gesperrt";
-      else status = "belegt";
-
-      zellen[datum][stunde] = { frei, gesamt: plaetze.length, status };
-    }
+    plaetze.forEach((p, i) => {
+      zellen[datum][p.id] = verfProPlatz[i];
+    });
   }
 
-  return { tage, stunden, zellen };
+  return { tage, zeiten, plaetze, zellen };
 }

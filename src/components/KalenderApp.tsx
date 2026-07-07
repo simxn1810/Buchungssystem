@@ -3,11 +3,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type ZellStatus = "frei" | "belegt" | "gesperrt" | "abo" | "vergangen";
-type Zelle = { frei: number; gesamt: number; status: ZellStatus };
+type Platz = { id: number; name: string };
 type Uebersicht = {
   tage: string[];
-  stunden: string[];
-  zellen: Record<string, Record<string, Zelle>>;
+  zeiten: string[];
+  plaetze: Platz[];
+  // zellen[datum][platzId][zeit] = ZellStatus
+  zellen: Record<string, Record<number, Record<string, ZellStatus>>>;
 };
 
 // --- Datums-Helfer (String-basiert, UTC, analog Backend) ---
@@ -50,11 +52,11 @@ function zellKlasse(status: ZellStatus): string {
   }
 }
 
-function zellInhalt(z: Zelle): string {
-  if (z.status === "frei") return z.gesamt > 1 ? String(z.frei) : "frei";
-  if (z.status === "abo") return "Abo";
-  if (z.status === "gesperrt") return "\u2013";
-  if (z.status === "belegt") return "\u2013";
+function zellInhalt(status: ZellStatus): string {
+  if (status === "frei") return "frei";
+  if (status === "abo") return "Abo";
+  if (status === "gesperrt") return "\u2013";
+  if (status === "belegt") return "\u2013";
   return "";
 }
 
@@ -92,6 +94,8 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
       )}.${daten.tage[6].split("-")[1]}.${daten.tage[6].split("-")[0].slice(2)}`
     : "";
 
+  const mehrereProTag = (daten?.plaetze.length ?? 0) > 1;
+
   return (
     <div>
       <div className="mb-4 flex flex-wrap gap-2">
@@ -118,11 +122,7 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
       </div>
 
       <div className="mb-3 flex flex-wrap gap-3 text-xs text-gray-600">
-        {typ === "tennis" ? (
-          <Legende klasse="bg-green-100" text="Zahl = freie Plätze" />
-        ) : (
-          <Legende klasse="bg-green-100" text="frei" />
-        )}
+        <Legende klasse="bg-green-100" text="frei" />
         <Legende klasse="bg-gray-200" text="belegt" />
         <Legende klasse="bg-red-100" text="gesperrt" />
         <Legende klasse="bg-amber-100" text="Abo/Training" />
@@ -135,11 +135,15 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
           <table className="w-full border-collapse text-center text-xs">
             <thead>
               <tr>
-                <th className="sticky left-0 bg-white p-1 text-gray-500"></th>
+                <th rowSpan={mehrereProTag ? 2 : 1} className="sticky left-0 bg-white p-1 text-gray-500"></th>
                 {daten.tage.map((d) => {
                   const istHeute = d === heute;
                   return (
-                    <th key={d} className="p-1">
+                    <th
+                      key={d}
+                      colSpan={daten.plaetze.length}
+                      className="border-l border-gray-200 p-1"
+                    >
                       <div className={istHeute ? "font-bold text-verein-blau" : "text-gray-600"}>
                         {tagKurz(d)}
                       </div>
@@ -150,26 +154,48 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
                   );
                 })}
               </tr>
+              {mehrereProTag && (
+                <tr>
+                  {daten.tage.map((d) =>
+                    daten.plaetze.map((p, i) => (
+                      <th
+                        key={`${d}-${p.id}`}
+                        className={`p-0.5 text-[10px] font-normal text-gray-400 ${
+                          i === 0 ? "border-l border-gray-200" : ""
+                        }`}
+                      >
+                        {p.name}
+                      </th>
+                    ))
+                  )}
+                </tr>
+              )}
             </thead>
             <tbody>
-              {daten.stunden.map((stunde) => (
-                <tr key={stunde}>
-                  <td className="sticky left-0 bg-white p-1 text-right font-medium text-gray-500">
-                    {stunde}
+              {daten.zeiten.map((zeit) => (
+                <tr key={zeit}>
+                  <td className="sticky left-0 bg-white p-1 pr-2 text-right font-medium text-gray-500">
+                    {zeit}
                   </td>
-                  {daten.tage.map((d) => {
-                    const z = daten.zellen[d]?.[stunde];
-                    if (!z) return <td key={d} className="p-0.5" />;
-                    return (
-                      <td key={d} className="p-0.5">
-                        <div
-                          className={`rounded py-1 text-[11px] font-medium ${zellKlasse(z.status)}`}
+                  {daten.tage.map((d) =>
+                    daten.plaetze.map((p, i) => {
+                      const status = daten.zellen[d]?.[p.id]?.[zeit];
+                      return (
+                        <td
+                          key={`${d}-${p.id}`}
+                          className={`p-0.5 ${i === 0 ? "border-l border-gray-200" : ""}`}
                         >
-                          {zellInhalt(z)}
-                        </div>
-                      </td>
-                    );
-                  })}
+                          <div
+                            className={`rounded py-0.5 text-[10px] font-medium ${zellKlasse(
+                              status ?? "vergangen"
+                            )}`}
+                          >
+                            {zellInhalt(status ?? "vergangen")}
+                          </div>
+                        </td>
+                      );
+                    })
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -178,7 +204,7 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
       )}
 
       <p className="mt-4 text-xs text-gray-500">
-        Anzeige pro voller Stunde. Genaue 15-Minuten-Zeiten und die Buchung findest du auf der{" "}
+        Anzeige je Platz in 15-Minuten-Schritten. Die Buchung findest du auf der{" "}
         <a href="/" className="text-verein-blau underline">
           Buchungsseite
         </a>
