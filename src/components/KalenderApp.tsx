@@ -47,7 +47,8 @@ function zellKlasse(status: ZellStatus, platzIndex = 0): string {
     case "belegt":
       return "bg-gray-200 text-gray-500";
     case "gesperrt":
-      return "bg-red-100 text-red-500";
+      // Für Kunden nicht von "belegt" unterscheidbar
+      return "bg-gray-200 text-gray-500";
     case "abo":
       return "bg-amber-100 text-amber-700";
     default:
@@ -128,7 +129,6 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
         <Legende klasse="bg-green-100" text="frei (Platz 1)" />
         <Legende klasse="bg-emerald-300" text="frei (Platz 2)" />
         <Legende klasse="bg-gray-200" text="belegt" />
-        <Legende klasse="bg-red-100" text="gesperrt" />
         <Legende klasse="bg-amber-100" text="Abo/Training" />
       </div>
 

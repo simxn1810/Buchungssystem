@@ -181,7 +181,7 @@ export default function BuchungsApp({
     if (imRange) return "bg-verein-blau text-white border-verein-blau";
     if (status === "frei") return "bg-white text-verein-blau border-verein-blau/40 hover:border-verein-blau";
     if (status === "belegt") return "bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed";
-    if (status === "gesperrt") return "bg-red-100 text-red-400 border-red-200 cursor-not-allowed";
+    if (status === "gesperrt") return "bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed";
     if (status === "abo") return "bg-amber-100 text-amber-500 border-amber-200 cursor-not-allowed";
     return "bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed"; // vergangen
   }
@@ -517,7 +517,6 @@ export default function BuchungsApp({
         <Legende klasse="bg-white border-verein-blau/40" text="frei" />
         <Legende klasse="bg-verein-blau" text="ausgewaehlt" />
         <Legende klasse="bg-gray-200" text="belegt" />
-        <Legende klasse="bg-red-100" text="gesperrt" />
         <Legende klasse="bg-amber-100" text="Abo" />
       </div>
 
