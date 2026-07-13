@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import AdminDashboard from "./AdminDashboard";
 
 type Platz = { id: number; name: string; typ: string };
 type Buchung = {
@@ -59,7 +60,7 @@ function toMin(z: string) {
 
 export default function AdminApp({ plaetze, heute }: { plaetze: Platz[]; heute: string }) {
   const [tab, setTab] = useState<
-    "buchungen" | "sperrungen" | "abos" | "tarife" | "zugangscodes"
+    "buchungen" | "auswertung" | "sperrungen" | "abos" | "tarife" | "zugangscodes"
   >("buchungen");
 
   async function logout() {
@@ -78,6 +79,7 @@ export default function AdminApp({ plaetze, heute }: { plaetze: Platz[]; heute: 
 
       <div className="mb-4 flex flex-wrap gap-2">
         <Tab aktiv={tab === "buchungen"} onClick={() => setTab("buchungen")} label="Buchungen" />
+        <Tab aktiv={tab === "auswertung"} onClick={() => setTab("auswertung")} label="Auswertung" />
         <Tab aktiv={tab === "sperrungen"} onClick={() => setTab("sperrungen")} label="Sperrzeiten" />
         <Tab aktiv={tab === "abos"} onClick={() => setTab("abos")} label="Abos" />
         <Tab aktiv={tab === "tarife"} onClick={() => setTab("tarife")} label="Tarife" />
@@ -89,6 +91,7 @@ export default function AdminApp({ plaetze, heute }: { plaetze: Platz[]; heute: 
       </div>
 
       {tab === "buchungen" && <BuchungenTab heute={heute} />}
+      {tab === "auswertung" && <AdminDashboard />}
       {tab === "sperrungen" && <SperrungenTab plaetze={plaetze} heute={heute} />}
       {tab === "abos" && <AbosTab plaetze={plaetze} heute={heute} />}
       {tab === "tarife" && <TarifeTab />}
