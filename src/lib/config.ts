@@ -40,6 +40,7 @@ export const ZEITZONE = "Europe/Berlin";
 // Vereinsdaten (fest hinterlegt fuer Footer, Kontakt, Bestaetigungen).
 export const VEREIN = {
   name: "Tennisclub Frankenau 1978 e.V.",
+  // Physischer Standort der Tennishalle (fuer Anfahrt/Footer).
   adresse: "Am Sternberg 3, 35110 Frankenau",
   naviHinweis: "Navi: Am Sternberg 1d",
   vorsitzender: "Uwe Eimer",
@@ -48,4 +49,12 @@ export const VEREIN = {
   whatsapp: "+49 159 01233300",
   instagram: "@tcfrankenau",
   website: "https://tennis-frankenau.de",
+  steuernummer: "1125000474 (Finanzamt Korbach-Frankenberg)",
+  // Rechtliche Vereinsanschrift gemaess offiziellem Impressum (§ 5 TMG/DDG) – weicht vom
+  // physischen Standort der Tennishalle ab.
+  vereinsanschrift: "Schulstraße 15, 35110 Frankenau",
+  // Telefonnummer, wie sie auf der Vereinswebsite fuer die "verantwortliche Stelle" genannt wird.
+  vereinsanschriftTelefon: "06451/22756",
+  vorsitzenderAdresse: "Wildungerstraße 36, 35066 Frankenberg (Eder) OT Geismar",
+  webmaster: "Lasse Kahler, Simon Battefeld, Jan Stachon (Vorstand)",
 };
