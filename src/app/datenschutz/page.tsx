@@ -30,6 +30,29 @@ export default function DatenschutzPage() {
         Buchungsbestaetigung, Stornierung) sowie der Organisation des Hallenbetriebs.
       </p>
 
+      <h2 className="mt-6 text-lg font-semibold text-verein-blau">Rechtsgrundlage</h2>
+      <p>
+        Die Verarbeitung erfolgt zur Erfuellung eines Vertrags bzw. zur Durchfuehrung
+        vorvertraglicher Massnahmen (Art. 6 Abs. 1 lit. b DSGVO), naemlich der Bereitstellung des
+        gebuchten Hallenplatzes.
+      </p>
+
+      <h2 className="mt-6 text-lg font-semibold text-verein-blau">Empfaenger / Auftragsverarbeiter</h2>
+      <p>
+        Zur technischen Bereitstellung dieses Buchungssystems werden folgende Dienstleister als
+        Auftragsverarbeiter eingesetzt:
+      </p>
+      <ul>
+        <li>Vercel Inc. (USA) – Hosting der Anwendung</li>
+        <li>Neon (PostgreSQL-Datenbank) – Speicherung der Buchungsdaten</li>
+        <li>Resend bzw. ein SMTP-Anbieter – Versand von Bestaetigungs-E-Mails</li>
+        <li>Twilio Inc. (USA) – Versand von SMS-Bestaetigungscodes, sofern per Handynummer gebucht wird</li>
+      </ul>
+      <p>
+        Bei Anbietern mit Sitz in den USA erfolgt die Datenuebertragung auf Grundlage von
+        EU-Standardvertragsklauseln. Eine Weitergabe an sonstige Dritte findet nicht statt.
+      </p>
+
       <h2 className="mt-6 text-lg font-semibold text-verein-blau">Speicherdauer</h2>
       <p>
         Buchungsdaten werden automatisch nach {config.datenLoeschTage} Tagen geloescht.
@@ -46,8 +69,10 @@ export default function DatenschutzPage() {
 
       <h2 className="mt-6 text-lg font-semibold text-verein-blau">Ihre Rechte</h2>
       <p>
-        Sie haben das Recht auf Auskunft, Berichtigung und Loeschung Ihrer Daten. Wenden Sie sich
-        dazu an {VEREIN.email}.
+        Sie haben das Recht auf Auskunft, Berichtigung, Loeschung und Einschraenkung der
+        Verarbeitung Ihrer Daten sowie das Recht auf Datenuebertragbarkeit und Widerspruch gegen
+        die Verarbeitung. Wenden Sie sich dazu an {VEREIN.email}. Ausserdem steht Ihnen ein
+        Beschwerderecht bei der zustaendigen Datenschutz-Aufsichtsbehoerde zu.
       </p>
     </div>
   );
