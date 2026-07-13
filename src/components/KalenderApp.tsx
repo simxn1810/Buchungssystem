@@ -126,8 +126,8 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
       </div>
 
       <div className="mb-3 flex flex-wrap gap-3 text-xs text-gray-600">
-        <Legende klasse="bg-green-100" text="frei (Platz 1)" />
-        <Legende klasse="bg-emerald-300" text="frei (Platz 2)" />
+        <Legende klasse="bg-green-100" text="Platz 1" />
+        <Legende klasse="bg-emerald-300" text="Platz 2" />
         <Legende klasse="bg-gray-200" text="belegt" />
         <Legende klasse="bg-amber-100" text="Abo/Training" />
       </div>
@@ -135,11 +135,17 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
       {lade || !daten ? (
         <p className="py-8 text-center text-gray-500">Lade Übersicht…</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-center text-xs">
+        <div>
+          <table className="w-full table-fixed border-collapse text-center text-xs">
+            <colgroup>
+              <col className="w-8" />
+              {daten.tage.map((d) =>
+                daten.plaetze.map((p) => <col key={`${d}-${p.id}-col`} />)
+              )}
+            </colgroup>
             <thead>
               <tr>
-                <th rowSpan={mehrereProTag ? 2 : 1} className="sticky left-0 bg-white p-1 text-gray-500"></th>
+                <th rowSpan={mehrereProTag ? 2 : 1} className="bg-white p-1 text-gray-500"></th>
                 {daten.tage.map((d) => {
                   const istHeute = d === heute;
                   return (
@@ -178,7 +184,7 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
             <tbody>
               {daten.zeiten.map((zeit) => (
                 <tr key={zeit}>
-                  <td className="sticky left-0 bg-white p-1 pr-2 text-right align-top font-medium leading-none text-gray-500">
+                  <td className="whitespace-nowrap bg-white p-1 pr-1 text-right align-top text-[10px] font-medium leading-none text-gray-500">
                     <span className="-translate-y-1/2 inline-block">{zeit}</span>
                   </td>
                   {daten.tage.map((d) =>
