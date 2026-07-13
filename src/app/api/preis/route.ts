@@ -18,7 +18,6 @@ export async function POST(req: NextRequest) {
       datum: String(body.datum),
       startzeit: String(body.startzeit),
       dauerMinuten: Number(body.dauerMinuten),
-      mitglied: Boolean(body.mitglied),
       leihschlaegerAnzahl: Number(body.leihschlaegerAnzahl) || 0,
       baelle: Boolean(body.baelle),
       ermaessigung: Boolean(body.ermaessigung),

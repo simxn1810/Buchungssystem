@@ -133,7 +133,7 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
       </div>
 
       {lade || !daten ? (
-        <p className="py-8 text-center text-gray-500">Lade &Uuml;bersicht&hellip;</p>
+        <p className="py-8 text-center text-gray-500">Lade Übersicht…</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-center text-xs">

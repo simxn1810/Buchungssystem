@@ -16,7 +16,6 @@ export default async function HomePage() {
   const settings = {
     minDauer: config.minDauerMinuten,
     maxDauer: config.maxDauerMinuten,
-    mitgliedAuswahlAktiv: config.mitgliedAuswahlAktiv,
     codeGueltigMinuten: config.codeGueltigMinuten,
     leihschlaegerCentProStunde: config.leihschlaegerCentProStunde,
     ballPreisCent: config.ballPreisCent,
@@ -35,7 +34,7 @@ export default async function HomePage() {
         href="/kalender"
         className="mb-6 inline-block rounded-full border border-verein-blau px-4 py-2 text-sm font-medium text-verein-blau"
       >
-        Wochen&uuml;bersicht ansehen
+        Wochenübersicht ansehen
       </a>
       <BuchungsApp plaetze={plaetze} settings={settings} />
     </div>

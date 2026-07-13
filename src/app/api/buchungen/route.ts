@@ -18,7 +18,6 @@ export async function POST(req: NextRequest) {
     dauerMinuten: Number(body.dauerMinuten),
     name: String(body.name || ""),
     kontakt: String(body.kontakt || ""),
-    mitglied: Boolean(body.mitglied),
     leihschlaegerAnzahl: Number(body.leihschlaegerAnzahl) || 0,
     baelle: Boolean(body.baelle),
     ermaessigung: Boolean(body.ermaessigung),

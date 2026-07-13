@@ -22,7 +22,6 @@ export type ErstellenInput = {
   dauerMinuten: number;
   name: string;
   kontakt: string;
-  mitglied: boolean;
   leihschlaegerAnzahl: number;
   baelle: boolean;
   ermaessigung: boolean;
@@ -110,7 +109,6 @@ export async function erstelleVorlaeufigeBuchung(
       datum: input.datum,
       startzeit: input.startzeit,
       dauerMinuten: input.dauerMinuten,
-      mitglied: input.mitglied,
       leihschlaegerAnzahl: input.leihschlaegerAnzahl,
       baelle: input.baelle,
       ermaessigung: input.ermaessigung,
@@ -142,7 +140,6 @@ export async function erstelleVorlaeufigeBuchung(
           name: input.name.trim(),
           kontakt: kontaktGespeichert,
           kontaktTyp,
-          mitglied: input.mitglied,
           leihschlaegerAnzahl: input.leihschlaegerAnzahl,
           baelle: input.baelle,
           ermaessigung: input.ermaessigung,

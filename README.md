@@ -71,7 +71,6 @@ Alle Variablen sind in `.env.example` dokumentiert. Die wichtigsten:
 | `BUCHUNG_HORIZONT_TAGE` | Buchbarer Vorlauf | `62` |
 | `CODE_GUELTIG_MINUTEN` | Reservierungsdauer bis Code-Eingabe | `10` |
 | `DATEN_LOESCH_TAGE` | DSGVO-Löschfrist | `60` |
-| `MITGLIED_AUSWAHL_AKTIV` | Mitglied/Gast-Auswahl anzeigen | `true` |
 | `LEIHSCHLAEGER_CENT_PRO_STUNDE` | Leihschläger-Preis (Cent) | `100` |
 | `BALL_PREIS_CENT` | Ballpreis (Cent) | `0` |
 | `ERMAESSIGUNG_CENT_PRO_STUNDE` | Schüler/Studenten-Abzug (Cent) | `200` |

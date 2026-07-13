@@ -12,12 +12,6 @@ function str(name: string, fallback: string): string {
   return v === undefined || v === "" ? fallback : v;
 }
 
-function bool(name: string, fallback: boolean): boolean {
-  const v = process.env[name];
-  if (v === undefined || v === "") return fallback;
-  return v.toLowerCase() === "true" || v === "1";
-}
-
 export const config = {
   oeffnungVon: str("OEFFNUNG_VON", "07:00"),
   oeffnungBis: str("OEFFNUNG_BIS", "23:00"),
@@ -26,11 +20,9 @@ export const config = {
   buchungHorizontTage: num("BUCHUNG_HORIZONT_TAGE", 62),
   codeGueltigMinuten: num("CODE_GUELTIG_MINUTEN", 10),
   datenLoeschTage: num("DATEN_LOESCH_TAGE", 60),
-  mitgliedAuswahlAktiv: bool("MITGLIED_AUSWAHL_AKTIV", false),
   leihschlaegerCentProStunde: num("LEIHSCHLAEGER_CENT_PRO_STUNDE", 100),
   ballPreisCent: num("BALL_PREIS_CENT", 0),
   ermaessigungCentProStunde: num("ERMAESSIGUNG_CENT_PRO_STUNDE", 200),
-  mitgliedRabattCentProStunde: num("MITGLIED_RABATT_CENT_PRO_STUNDE", 200),
   adminPasswort: str("ADMIN_PASSWORD", ""),
 };
 

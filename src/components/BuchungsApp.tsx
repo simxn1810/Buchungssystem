@@ -6,7 +6,6 @@ type Platz = { id: number; name: string; typ: string };
 type Settings = {
   minDauer: number;
   maxDauer: number;
-  mitgliedAuswahlAktiv: boolean;
   codeGueltigMinuten: number;
   leihschlaegerCentProStunde: number;
   ballPreisCent: number;
@@ -20,7 +19,6 @@ type Preis = {
   leihschlaegerCent: number;
   ballCent: number;
   ermaessigungCent: number;
-  mitgliedRabattCent: number;
   gesamtCent: number;
 };
 
@@ -70,7 +68,6 @@ export default function BuchungsApp({
   // Formularfelder
   const [name, setName] = useState("");
   const [kontakt, setKontakt] = useState("");
-  const [mitglied, setMitglied] = useState(false);
   const [leihschlaegerAnzahl, setLeihschlaegerAnzahl] = useState(0);
   const [baelle, setBaelle] = useState(false);
   const [ermaessigung, setErmaessigung] = useState(false);
@@ -159,7 +156,6 @@ export default function BuchungsApp({
             datum,
             startzeit: startSlot,
             dauerMinuten: dauer,
-            mitglied,
             leihschlaegerAnzahl,
             baelle,
             ermaessigung,
@@ -174,7 +170,7 @@ export default function BuchungsApp({
     return () => {
       abbrechen = true;
     };
-  }, [step, platzId, datum, startSlot, dauer, mitglied, leihschlaegerAnzahl, baelle, ermaessigung]);
+  }, [step, platzId, datum, startSlot, dauer, leihschlaegerAnzahl, baelle, ermaessigung]);
 
   function slotKlasse(slot: string) {
     const status = verf?.[slot];
@@ -205,7 +201,6 @@ export default function BuchungsApp({
           dauerMinuten: dauer,
           name,
           kontakt,
-          mitglied,
           leihschlaegerAnzahl,
           baelle,
           ermaessigung,
@@ -254,7 +249,6 @@ export default function BuchungsApp({
     setStartSlot(null);
     setName("");
     setKontakt("");
-    setMitglied(false);
     setLeihschlaegerAnzahl(0);
     setBaelle(false);
     setErmaessigung(false);
@@ -411,17 +405,6 @@ export default function BuchungsApp({
         <label className="mb-3 flex items-center gap-2">
           <input
             type="checkbox"
-            checked={mitglied}
-            onChange={(e) => setMitglied(e.target.checked)}
-          />
-          <span className="text-sm">
-            Ich bin Mitglied (2,- € pro Stunde Rabatt, vor Ort kontrolliert)
-          </span>
-        </label>
-
-        <label className="mb-3 flex items-center gap-2">
-          <input
-            type="checkbox"
             checked={ermaessigung}
             onChange={(e) => setErmaessigung(e.target.checked)}
           />
@@ -435,9 +418,6 @@ export default function BuchungsApp({
               <Zeile label="Leihschläger" wert={`${euro(preis.leihschlaegerCent)} €`} />
             )}
             {preis.ballCent > 0 && <Zeile label="Bälle" wert={`${euro(preis.ballCent)} €`} />}
-            {preis.mitgliedRabattCent > 0 && (
-              <Zeile label="Mitglieder-Rabatt" wert={`– ${euro(preis.mitgliedRabattCent)} €`} />
-            )}
             {preis.ermaessigungCent > 0 && (
               <Zeile label="Ermäßigung" wert={`– ${euro(preis.ermaessigungCent)} €`} />
             )}
