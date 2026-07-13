@@ -4,7 +4,7 @@ import { istAdmin } from "@/lib/admin";
 
 export const dynamic = "force-dynamic";
 
-// Buchungsuebersicht. Optional gefiltert nach Datum.
+// Buchungsübersicht. Optional gefiltert nach Datum.
 export async function GET(req: NextRequest) {
   if (!istAdmin()) return NextResponse.json({ fehler: "Nicht autorisiert." }, { status: 401 });
   const datum = req.nextUrl.searchParams.get("datum");
@@ -24,7 +24,7 @@ export async function DELETE(req: NextRequest) {
   if (!istAdmin()) return NextResponse.json({ fehler: "Nicht autorisiert." }, { status: 401 });
   const id = Number(req.nextUrl.searchParams.get("id"));
   if (!Number.isInteger(id) || id <= 0) {
-    return NextResponse.json({ fehler: "Ungueltige ID." }, { status: 400 });
+    return NextResponse.json({ fehler: "Ungültige ID." }, { status: 400 });
   }
   const buchung = await prisma.buchung.findUnique({ where: { id } });
   if (!buchung) return NextResponse.json({ fehler: "Nicht gefunden." }, { status: 404 });

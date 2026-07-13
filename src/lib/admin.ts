@@ -3,7 +3,7 @@ import { config } from "./config";
 
 export const ADMIN_COOKIE = "tc_admin";
 
-// Sehr einfacher Schutz fuer das MVP: Das in ADMIN_PASSWORD gesetzte Passwort
+// Sehr einfacher Schutz für das MVP: Das in ADMIN_PASSWORD gesetzte Passwort
 // wird als Cookie-Wert gespeichert und bei jeder Anfrage verglichen.
 export function adminPasswortKorrekt(eingabe: string): boolean {
   return Boolean(config.adminPasswort) && eingabe === config.adminPasswort;

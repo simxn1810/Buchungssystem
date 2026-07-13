@@ -5,7 +5,7 @@ import { formatDatum } from "./time";
 import { VEREIN } from "./config";
 import type { KontaktTyp } from "./validate";
 
-// Versand des Bestaetigungscodes ueber den gewaehlten Kanal.
+// Versand des Bestätigungscodes über den gewählten Kanal.
 export async function sendeCode(
   kontakt: string,
   kontaktTyp: KontaktTyp,
@@ -13,7 +13,7 @@ export async function sendeCode(
   gueltigMinuten: number
 ): Promise<void> {
   const text =
-    `Ihr Bestaetigungscode fuer die Platzbuchung beim ${VEREIN.name} lautet: ${code}\n` +
+    `Ihr Bestätigungscode für die Platzbuchung beim ${VEREIN.name} lautet: ${code}\n` +
     `Bitte geben Sie den Code innerhalb von ${gueltigMinuten} Minuten ein, ` +
     `sonst wird die Reservierung wieder freigegeben.`;
 
@@ -22,7 +22,7 @@ export async function sendeCode(
   } else {
     await sendeEmail({
       to: kontakt,
-      subject: `Bestaetigungscode ${code} – ${VEREIN.name}`,
+      subject: `Bestätigungscode ${code} – ${VEREIN.name}`,
       text,
     });
   }
@@ -50,21 +50,21 @@ function bestaetigungText(d: BuchungBestaetigungDaten): string {
   ).padStart(2, "0")}`;
 
   const zeilen = [
-    `Ihre Buchung beim ${VEREIN.name} ist bestaetigt.`,
+    `Ihre Buchung beim ${VEREIN.name} ist bestätigt.`,
     "",
     `Platz: ${d.platzName}`,
     `Datum: ${formatDatum(d.datum)}`,
     `Uhrzeit: ${d.startzeit} – ${ende} Uhr (${d.dauerMinuten} Min)`,
-    `Leihschlaeger: ${d.leihschlaegerAnzahl > 0 ? d.leihschlaegerAnzahl : "keine"}`,
-    `Baelle: ${d.baelle ? "ja" : "nein"}`,
+    `Leihschläger: ${d.leihschlaegerAnzahl > 0 ? d.leihschlaegerAnzahl : "keine"}`,
+    `Bälle: ${d.baelle ? "ja" : "nein"}`,
     "",
     `Vor Ort zu zahlen: ${formatEuro(d.gesamtpreisCent)} €`,
     "Die Bezahlung erfolgt vor Ort.",
     "",
     ...(d.zugangscode
       ? [
-          `Zugangscode fuer die Halle an diesem Tag: ${d.zugangscode}`,
-          "Bitte nicht weitergeben. Der Code gilt nur fuer den Buchungstag.",
+          `Zugangscode für die Halle an diesem Tag: ${d.zugangscode}`,
+          "Bitte nicht weitergeben. Der Code gilt nur für den Buchungstag.",
           "",
         ]
       : []),
@@ -72,7 +72,7 @@ function bestaetigungText(d: BuchungBestaetigungDaten): string {
     "",
     `Adresse: ${VEREIN.adresse} (${VEREIN.naviHinweis})`,
     "",
-    "Bitte denken Sie nach dem Spiel daran, die Fenster zu schliessen und das Licht auszuschalten. Vielen Dank!",
+    "Bitte denken Sie nach dem Spiel daran, die Fenster zu schließen und das Licht auszuschalten. Vielen Dank!",
   ];
   return zeilen.join("\n");
 }
@@ -88,7 +88,7 @@ export async function sendeBestaetigung(
   } else {
     await sendeEmail({
       to: kontakt,
-      subject: `Buchungsbestaetigung – ${VEREIN.name}`,
+      subject: `Buchungsbestätigung – ${VEREIN.name}`,
       text,
     });
   }

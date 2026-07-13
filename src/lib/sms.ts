@@ -21,7 +21,7 @@ export async function sendeSms({ to, text }: SmsInput): Promise<void> {
   const from = process.env.TWILIO_FROM_NUMBER;
 
   if (!sid || !token || !from) {
-    // Fallback fuer lokale Entwicklung ohne SMS-Provider.
+    // Fallback für lokale Entwicklung ohne SMS-Provider.
     console.log("\n--- SMS (kein Provider konfiguriert) ---");
     console.log(`An: ${to}`);
     console.log(text);

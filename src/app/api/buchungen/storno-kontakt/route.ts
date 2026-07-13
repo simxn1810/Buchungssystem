@@ -8,14 +8,14 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ fehler: "Ungueltige Anfrage." }, { status: 400 });
+    return NextResponse.json({ fehler: "Ungültige Anfrage." }, { status: 400 });
   }
 
   const buchungId = Number(body.buchungId);
   const name = String(body.name || "").trim();
   const email = String(body.email || "").trim();
   if (!Number.isInteger(buchungId) || !name || !email) {
-    return NextResponse.json({ fehler: "Ungueltige Anfrage." }, { status: 400 });
+    return NextResponse.json({ fehler: "Ungültige Anfrage." }, { status: 400 });
   }
 
   const ergebnis = await storniereMitKontakt(buchungId, name, email);

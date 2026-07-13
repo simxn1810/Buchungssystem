@@ -109,7 +109,7 @@ export default function MeineBuchungen() {
         </label>
         <p className="mb-3 text-xs text-gray-500">
           Hinweis: Es werden nur Buchungen angezeigt, die per E-Mail vorgenommen wurden. Name und
-          E-Mail muessen mit der Buchung uebereinstimmen.
+          E-Mail müssen mit der Buchung übereinstimmen.
         </p>
         {fehler && <p className="mb-3 text-sm text-red-600">{fehler}</p>}
         <button
@@ -146,8 +146,8 @@ export default function MeineBuchungen() {
                     </div>
                     <div className="text-gray-600">
                       Vor Ort zu zahlen: {euro(b.gesamtpreisCent)} €
-                      {b.leihschlaegerAnzahl > 0 && ` · ${b.leihschlaegerAnzahl} Leihschlaeger`}
-                      {b.baelle && " · Baelle"}
+                      {b.leihschlaegerAnzahl > 0 && ` · ${b.leihschlaegerAnzahl} Leihschläger`}
+                      {b.baelle && " · Bälle"}
                     </div>
                     {storniert ? (
                       <p className="mt-2 font-medium text-green-700">Storniert.</p>

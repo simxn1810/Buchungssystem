@@ -15,7 +15,7 @@ export function minToZeit(min: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
-// Alle buchbaren 15-Minuten-Startslots innerhalb der Oeffnungszeiten.
+// Alle buchbaren 15-Minuten-Startslots innerhalb der Öffnungszeiten.
 // Beispiel 07:00-23:00 -> 07:00, 07:15, ... 22:45 (letzter Slot endet 23:00).
 export function alleSlots(): string[] {
   const von = zeitTomin(config.oeffnungVon);
@@ -38,7 +38,7 @@ export function slotsFuerBuchung(startzeit: string, dauerMinuten: number): strin
   return slots;
 }
 
-// Liegt Start + Dauer komplett innerhalb der Oeffnungszeiten?
+// Liegt Start + Dauer komplett innerhalb der Öffnungszeiten?
 export function innerhalbOeffnung(startzeit: string, dauerMinuten: number): boolean {
   const start = zeitTomin(startzeit);
   const ende = start + dauerMinuten;
@@ -94,14 +94,14 @@ export function imBuchungshorizont(datum: string): boolean {
   return datum >= heute && datum <= max;
 }
 
-// Wochentag-Gruppe fuer Preis/Tarif: "werktags" (Mo-Fr) oder "wochenende" (Sa/So).
+// Wochentag-Gruppe für Preis/Tarif: "werktags" (Mo-Fr) oder "wochenende" (Sa/So).
 export function wochentagGruppe(datum: string): "werktags" | "wochenende" {
   const [y, m, d] = datum.split("-").map(Number);
   const tag = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); // 0=So ... 6=Sa
   return tag === 0 || tag === 6 ? "wochenende" : "werktags";
 }
 
-// Wochentag als Zahl (0=So ... 6=Sa, analog JS getUTCDay). Wird fuer Abos genutzt.
+// Wochentag als Zahl (0=So ... 6=Sa, analog JS getUTCDay). Wird für Abos genutzt.
 export function wochentagNummer(datum: string): number {
   const [y, m, d] = datum.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
@@ -112,7 +112,7 @@ export function montagDerWoche(datum: string): string {
   const [y, m, d] = datum.split("-").map(Number);
   const dt = new Date(Date.UTC(y, m - 1, d));
   const tag = dt.getUTCDay(); // 0=So ... 6=Sa
-  const diff = tag === 0 ? -6 : 1 - tag; // zurueck auf Montag
+  const diff = tag === 0 ? -6 : 1 - tag; // zurück auf Montag
   dt.setUTCDate(dt.getUTCDate() + diff);
   return dt.toISOString().slice(0, 10);
 }
@@ -125,7 +125,7 @@ export function datumPlusTageAb(datum: string, tage: number): string {
   return dt.toISOString().slice(0, 10);
 }
 
-// Wochentag-Schluessel fuer den Zugangscode der Halle.
+// Wochentag-Schlüssel für den Zugangscode der Halle.
 // Mo-Fr sowie Sa und So jeweils einzeln.
 export type WochentagKey =
   | "montag"

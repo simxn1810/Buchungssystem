@@ -3,13 +3,13 @@ import { berechnePreisFuerBuchung } from "@/lib/pricing";
 
 export const dynamic = "force-dynamic";
 
-// Preisvorschau fuer die im Formular gewaehlten Optionen.
+// Preisvorschau für die im Formular gewählten Optionen.
 export async function POST(req: NextRequest) {
   let body: any;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ fehler: "Ungueltige Anfrage." }, { status: 400 });
+    return NextResponse.json({ fehler: "Ungültige Anfrage." }, { status: 400 });
   }
 
   try {
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ preis });
   } catch {
     return NextResponse.json(
-      { fehler: "Fuer diese Zeit ist kein Tarif hinterlegt." },
+      { fehler: "Für diese Zeit ist kein Tarif hinterlegt." },
       { status: 422 }
     );
   }

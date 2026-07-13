@@ -4,14 +4,14 @@ import { heuteISO } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
 
-// Wochen-Uebersicht fuer die Kalenderansicht (nur lesend, oeffentlich).
+// Wochen-Übersicht für die Kalenderansicht (nur lesend, öffentlich).
 // Parameter: typ = "tennis" | "squash", start = "YYYY-MM-DD" (optional).
 export async function GET(req: NextRequest) {
   const typ = req.nextUrl.searchParams.get("typ") || "";
   const start = req.nextUrl.searchParams.get("start") || "";
 
   if (typ !== "tennis" && typ !== "squash") {
-    return NextResponse.json({ fehler: "Ungueltige Sportart." }, { status: 400 });
+    return NextResponse.json({ fehler: "Ungültige Sportart." }, { status: 400 });
   }
   const startDatum = /^\d{4}-\d{2}-\d{2}$/.test(start) ? start : heuteISO();
 

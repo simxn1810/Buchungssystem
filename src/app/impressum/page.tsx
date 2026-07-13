@@ -7,7 +7,7 @@ export default function ImpressumPage() {
     <div className="prose prose-sm max-w-none">
       <h1 className="text-2xl font-bold text-verein-blau">Impressum</h1>
 
-      <h2 className="mt-6 text-lg font-semibold text-verein-blau">Angaben gemaess § 5 DDG</h2>
+      <h2 className="mt-6 text-lg font-semibold text-verein-blau">Angaben gemäß § 5 DDG</h2>
       <p>
         {VEREIN.name}
         <br />

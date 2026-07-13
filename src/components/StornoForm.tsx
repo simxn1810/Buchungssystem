@@ -33,7 +33,7 @@ export default function StornoForm({ token }: { token: string }) {
       <div className="rounded-lg border border-green-300 bg-green-50 p-5">
         <p className="font-semibold text-green-800">Ihre Buchung wurde storniert.</p>
         <a href="/" className="mt-3 inline-block text-verein-blau underline">
-          Zurueck zur Buchung
+          Zurück zur Buchung
         </a>
       </div>
     );
@@ -42,7 +42,7 @@ export default function StornoForm({ token }: { token: string }) {
   return (
     <div className="rounded-lg border border-gray-200 p-5">
       <p className="mb-4 text-sm text-gray-700">
-        Moechten Sie diese Buchung wirklich stornieren? Dieser Schritt kann nicht rueckgaengig
+        Möchten Sie diese Buchung wirklich stornieren? Dieser Schritt kann nicht rückgängig
         gemacht werden.
       </p>
       {fehler && <p className="mb-3 text-sm text-red-600">{fehler}</p>}

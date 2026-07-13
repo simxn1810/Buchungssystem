@@ -24,8 +24,8 @@ export default function KontaktPage() {
       <p>Instagram: {VEREIN.instagram}</p>
       <h2 className="mt-6 text-lg font-semibold text-verein-blau">Die Halle</h2>
       <p>
-        Zwei beheizte Tennisplaetze und ein Squashplatz. Umkleidekabinen, Duschen und Parkplaetze
-        direkt vor dem Gebaeude. Schlaegerleihe: 1,- € / Stunde / Schlaeger.
+        Zwei beheizte Tennisplätze und ein Squashplatz. Umkleidekabinen, Duschen und Parkplätze
+        direkt vor dem Gebäude. Schlägerleihe: 1,- € / Stunde / Schläger.
       </p>
     </div>
   );

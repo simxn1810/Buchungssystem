@@ -182,7 +182,7 @@ function BuchungenTab({ heute }: { heute: string }) {
                 {b.name} · {b.kontakt}
               </div>
               <div className="text-gray-600">
-                {euro(b.gesamtpreisCent)} € · Schlaeger: {b.leihschlaegerAnzahl} · Baelle:{" "}
+                {euro(b.gesamtpreisCent)} € · Schläger: {b.leihschlaegerAnzahl} · Bälle:{" "}
                 {b.baelle ? "ja" : "nein"}
               </div>
               <button
@@ -243,7 +243,7 @@ function SperrungenTab({ plaetze, heute }: { plaetze: Platz[]; heute: string }) 
   }
 
   async function loeschen(s: Sperrung) {
-    // Gruppenweise loeschen (datum + grund), da ein Zeitraum viele Slots erzeugt.
+    // Gruppenweise löschen (datum + grund), da ein Zeitraum viele Slots erzeugt.
     await fetch(
       `/api/admin/sperrungen?datum=${encodeURIComponent(s.datum)}&grund=${encodeURIComponent(s.grund)}`,
       { method: "DELETE" }
@@ -251,7 +251,7 @@ function SperrungenTab({ plaetze, heute }: { plaetze: Platz[]; heute: string }) 
     laden();
   }
 
-  // Sperrungen gruppieren nach datum+grund+platz fuer die Anzeige.
+  // Sperrungen gruppieren nach datum+grund+platz für die Anzeige.
   const gruppen = Object.values(
     sperrungen.reduce((acc: Record<string, { s: Sperrung; slots: string[] }>, s) => {
       const key = `${s.datum}|${s.grund}|${s.platzId ?? "alle"}`;
@@ -281,9 +281,9 @@ function SperrungenTab({ plaetze, heute }: { plaetze: Platz[]; heute: string }) 
             onChange={(e) => setPlatzId(e.target.value)}
             className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
           >
-            <option value="">Alle Plaetze</option>
+            <option value="">Alle Plätze</option>
             {tennisIds.length >= 2 && (
-              <option value="tennis-alle">Beide Tennisplaetze</option>
+              <option value="tennis-alle">Beide Tennisplätze</option>
             )}
             {plaetze.map((p) => (
               <option key={p.id} value={p.id}>
@@ -346,10 +346,10 @@ function SperrungenTab({ plaetze, heute }: { plaetze: Platz[]; heute: string }) 
               <li key={i} className="rounded border border-gray-200 p-3 text-sm">
                 <div className="flex justify-between">
                   <span>
-                    {g.s.platz?.name ?? "Alle Plaetze"} · {von}–{bis}
+                    {g.s.platz?.name ?? "Alle Plätze"} · {von}–{bis}
                   </span>
                   <button onClick={() => loeschen(g.s)} className="text-xs text-red-600 underline">
-                    Loeschen
+                    Löschen
                   </button>
                 </div>
                 <div className="text-gray-600">{g.s.grund}</div>
@@ -489,7 +489,7 @@ function ZugangscodesTab() {
   return (
     <div>
       <p className="mb-3 text-sm text-gray-600">
-        Tuercode der Halle je Wochentag. Nach jeder bestaetigten Buchung wird dem Kunden
+        Türcode der Halle je Wochentag. Nach jeder bestätigten Buchung wird dem Kunden
         automatisch der Code passend zum Buchungstag mitgeteilt. Samstag und Sonntag teilen sich
         einen Code.
       </p>
@@ -582,7 +582,7 @@ function AbosTab({ plaetze, heute }: { plaetze: Platz[]; heute: string }) {
   }
 
   async function loeschen(id: number) {
-    if (!confirm("Dieses Abo wirklich loeschen?")) return;
+    if (!confirm("Dieses Abo wirklich löschen?")) return;
     await fetch(`/api/admin/abos?id=${id}`, { method: "DELETE" });
     laden();
   }
@@ -592,8 +592,8 @@ function AbosTab({ plaetze, heute }: { plaetze: Platz[]; heute: string }) {
       <div className="mb-4 rounded border border-gray-200 p-4">
         <h2 className="mb-3 font-semibold text-verein-blau">Abo anlegen</h2>
         <p className="mb-3 text-sm text-gray-600">
-          Reserviert einen Platz an einem festen Wochentag in einem Zeitfenster ueber einen
-          Zeitraum (z. B. jeden Dienstag 19–20 Uhr). Die Zeit ist fuer diesen Zeitraum nicht
+          Reserviert einen Platz an einem festen Wochentag in einem Zeitfenster über einen
+          Zeitraum (z. B. jeden Dienstag 19–20 Uhr). Die Zeit ist für diesen Zeitraum nicht
           buchbar.
         </p>
         <label className="mb-2 block">
@@ -697,7 +697,7 @@ function AbosTab({ plaetze, heute }: { plaetze: Platz[]; heute: string }) {
                   {a.platz.name} · {wochentagLabel(a.wochentag)} · {a.zeitVon}–{a.zeitBis}
                 </span>
                 <button onClick={() => loeschen(a.id)} className="text-xs text-red-600 underline">
-                  Loeschen
+                  Löschen
                 </button>
               </div>
               <div className="text-gray-600">{a.titel}</div>

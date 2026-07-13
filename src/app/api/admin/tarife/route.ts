@@ -19,7 +19,7 @@ export async function PUT(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ fehler: "Ungueltige Anfrage." }, { status: 400 });
+    return NextResponse.json({ fehler: "Ungültige Anfrage." }, { status: 400 });
   }
   const updates: { id: number; preisProStundeCent: number }[] = Array.isArray(body.updates)
     ? body.updates

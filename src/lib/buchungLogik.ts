@@ -33,8 +33,8 @@ export type LogikErgebnis<T = undefined> =
   | { ok: true; data: T }
   | { ok: false; fehler: string };
 
-// Erstellt eine vorlaeufige Buchung (Status "ausstehend"), reserviert alle
-// benoetigten 15-Min-Slots und verschickt den Bestaetigungscode.
+// Erstellt eine vorläufige Buchung (Status "ausstehend"), reserviert alle
+// benötigten 15-Min-Slots und verschickt den Bestätigungscode.
 export async function erstelleVorlaeufigeBuchung(
   input: ErstellenInput
 ): Promise<LogikErgebnis<{ buchungId: number; kontaktTyp: "email" | "telefon" }>> {
@@ -43,11 +43,11 @@ export async function erstelleVorlaeufigeBuchung(
     return { ok: false, fehler: "Bitte einen Namen angeben." };
   }
   if (!input.einwilligung) {
-    return { ok: false, fehler: "Bitte der Datenschutzerklaerung zustimmen." };
+    return { ok: false, fehler: "Bitte der Datenschutzerklärung zustimmen." };
   }
   const kontaktTyp = erkenneKontaktTyp(input.kontakt);
   if (!kontaktTyp) {
-    return { ok: false, fehler: "Bitte eine gueltige E-Mail-Adresse oder Handynummer angeben." };
+    return { ok: false, fehler: "Bitte eine gültige E-Mail-Adresse oder Handynummer angeben." };
   }
   // SMS nur, wenn ein Provider konfiguriert ist – sonst nur E-Mail.
   const smsKonfiguriert = Boolean(
@@ -58,7 +58,7 @@ export async function erstelleVorlaeufigeBuchung(
   if (kontaktTyp === "telefon" && !smsKonfiguriert) {
     return {
       ok: false,
-      fehler: "SMS-Versand ist derzeit nicht verfuegbar. Bitte eine E-Mail-Adresse angeben.",
+      fehler: "SMS-Versand ist derzeit nicht verfügbar. Bitte eine E-Mail-Adresse angeben.",
     };
   }
 
@@ -74,32 +74,32 @@ export async function erstelleVorlaeufigeBuchung(
     };
   }
   if (!innerhalbOeffnung(input.startzeit, input.dauerMinuten)) {
-    return { ok: false, fehler: "Die gewaehlte Zeit liegt ausserhalb der Oeffnungszeiten." };
+    return { ok: false, fehler: "Die gewählte Zeit liegt außerhalb der Öffnungszeiten." };
   }
   if (!imBuchungshorizont(input.datum)) {
-    return { ok: false, fehler: "Das Datum liegt ausserhalb des buchbaren Zeitraums." };
+    return { ok: false, fehler: "Das Datum liegt außerhalb des buchbaren Zeitraums." };
   }
   if (istVergangen(input.datum, input.startzeit)) {
-    return { ok: false, fehler: "Die gewaehlte Zeit liegt in der Vergangenheit." };
+    return { ok: false, fehler: "Die gewählte Zeit liegt in der Vergangenheit." };
   }
   if (
     !Number.isInteger(input.leihschlaegerAnzahl) ||
     input.leihschlaegerAnzahl < 0 ||
     input.leihschlaegerAnzahl > 10
   ) {
-    return { ok: false, fehler: "Ungueltige Anzahl Leihschlaeger." };
+    return { ok: false, fehler: "Ungültige Anzahl Leihschläger." };
   }
 
   const platz = await prisma.platz.findUnique({ where: { id: input.platzId } });
   if (!platz || !platz.aktiv) {
-    return { ok: false, fehler: "Platz nicht verfuegbar." };
+    return { ok: false, fehler: "Platz nicht verfügbar." };
   }
 
   const slots = slotsFuerBuchung(input.startzeit, input.dauerMinuten);
 
   await aufraeumenAbgelaufen();
   if (!(await slotsFrei(input.platzId, input.datum, slots))) {
-    return { ok: false, fehler: "Dieser Platz ist zu dieser Zeit leider nicht mehr verfuegbar." };
+    return { ok: false, fehler: "Dieser Platz ist zu dieser Zeit leider nicht mehr verfügbar." };
   }
 
   // --- Preis berechnen ---
@@ -119,7 +119,7 @@ export async function erstelleVorlaeufigeBuchung(
   } catch {
     return {
       ok: false,
-      fehler: "Fuer diese Zeit ist kein Tarif hinterlegt. Bitte den Verein kontaktieren.",
+      fehler: "Für diese Zeit ist kein Tarif hinterlegt. Bitte den Verein kontaktieren.",
     };
   }
 
@@ -166,7 +166,7 @@ export async function erstelleVorlaeufigeBuchung(
     buchungId = buchung.id;
   } catch {
     // Verletzung der Unique-Constraint = paralleler Zugriff hat den Slot belegt.
-    return { ok: false, fehler: "Dieser Platz ist zu dieser Zeit leider nicht mehr verfuegbar." };
+    return { ok: false, fehler: "Dieser Platz ist zu dieser Zeit leider nicht mehr verfügbar." };
   }
 
   // --- Code versenden ---
@@ -176,7 +176,7 @@ export async function erstelleVorlaeufigeBuchung(
     // Versand fehlgeschlagen -> Reservierung wieder freigeben.
     await prisma.belegung.deleteMany({ where: { buchungId } });
     await prisma.buchung.update({ where: { id: buchungId }, data: { status: "storniert" } });
-    return { ok: false, fehler: "Der Bestaetigungscode konnte nicht versendet werden. Bitte erneut versuchen." };
+    return { ok: false, fehler: "Der Bestätigungscode konnte nicht versendet werden. Bitte erneut versuchen." };
   }
 
   return { ok: true, data: { buchungId, kontaktTyp } };
@@ -193,7 +193,7 @@ export type BestaetigungAnzeige = {
   stornoToken: string;
 };
 
-// Bestaetigt eine Buchung anhand des Codes.
+// Bestätigt eine Buchung anhand des Codes.
 export async function bestaetigeBuchung(
   buchungId: number,
   code: string,
@@ -221,7 +221,7 @@ export async function bestaetigeBuchung(
     };
   }
   if (buchung.status !== "ausstehend") {
-    return { ok: false, fehler: "Diese Buchung ist nicht mehr gueltig." };
+    return { ok: false, fehler: "Diese Buchung ist nicht mehr gültig." };
   }
   if (!buchung.codeAblauf || buchung.codeAblauf.getTime() < Date.now()) {
     await aufraeumenAbgelaufen();
@@ -231,7 +231,7 @@ export async function bestaetigeBuchung(
     return { ok: false, fehler: "Der Code ist falsch." };
   }
 
-  // Neuen Storno-Token erzeugen, Code entfernen, Status auf bestaetigt.
+  // Neuen Storno-Token erzeugen, Code entfernen, Status auf bestätigt.
   const stornoToken = erzeugeStornoToken();
   await prisma.buchung.update({
     where: { id: buchungId },
@@ -253,7 +253,7 @@ export async function bestaetigeBuchung(
       zugangscode,
     });
   } catch {
-    // Bestaetigung steht trotzdem; Versandfehler nicht hart abbrechen.
+    // Bestätigung steht trotzdem; Versandfehler nicht hart abbrechen.
   }
 
   return {
@@ -271,9 +271,9 @@ export async function bestaetigeBuchung(
   };
 }
 
-// Storniert eine bestaetigte Buchung – nur mit gueltigem Token moeglich.
+// Storniert eine bestätigte Buchung – nur mit gültigem Token möglich.
 export async function storniereMitToken(token: string): Promise<LogikErgebnis> {
-  if (!token) return { ok: false, fehler: "Ungueltiger Stornolink." };
+  if (!token) return { ok: false, fehler: "Ungültiger Stornolink." };
   const buchung = await prisma.buchung.findUnique({ where: { stornoToken: token } });
   if (!buchung || buchung.status !== "bestaetigt") {
     return { ok: false, fehler: "Buchung nicht gefunden oder bereits storniert." };
@@ -296,9 +296,9 @@ export type MeineBuchung = {
   baelle: boolean;
 };
 
-// Findet kommende, bestaetigte Buchungen anhand von Name + E-Mail.
-// Es muessen sowohl Name als auch E-Mail (jeweils unabhaengig von Gross-/
-// Kleinschreibung) uebereinstimmen, damit fremde Buchungen nicht einsehbar sind.
+// Findet kommende, bestätigte Buchungen anhand von Name + E-Mail.
+// Es müssen sowohl Name als auch E-Mail (jeweils unabhängig von Groß-/
+// Kleinschreibung) übereinstimmen, damit fremde Buchungen nicht einsehbar sind.
 export async function findeBuchungenFuerKontakt(
   name: string,
   email: string
@@ -330,8 +330,8 @@ export async function findeBuchungenFuerKontakt(
     }));
 }
 
-// Storniert eine bestaetigte Buchung anhand der ID, abgesichert durch erneute
-// Pruefung von Name + E-Mail (verhindert Stornierung fremder Buchungen).
+// Storniert eine bestätigte Buchung anhand der ID, abgesichert durch erneute
+// Prüfung von Name + E-Mail (verhindert Stornierung fremder Buchungen).
 export async function storniereMitKontakt(
   buchungId: number,
   name: string,

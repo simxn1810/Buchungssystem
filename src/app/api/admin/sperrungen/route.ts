@@ -16,15 +16,15 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ sperrungen });
 }
 
-// Legt Sperrungen fuer einen Zeitraum an (von/bis in 15-Min-Schritten).
-// platzId = null sperrt alle Plaetze.
+// Legt Sperrungen für einen Zeitraum an (von/bis in 15-Min-Schritten).
+// platzId = null sperrt alle Plätze.
 export async function POST(req: NextRequest) {
   if (!istAdmin()) return NextResponse.json({ fehler: "Nicht autorisiert." }, { status: 401 });
   let body: any;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ fehler: "Ungueltige Anfrage." }, { status: 400 });
+    return NextResponse.json({ fehler: "Ungültige Anfrage." }, { status: 400 });
   }
 
   const datum = String(body.datum || "");
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   const bis = String(body.bis || "");
   const grund = String(body.grund || "").trim();
 
-  // platzIds (Array) hat Vorrang, sonst einzelnes platzId; null = alle Plaetze.
+  // platzIds (Array) hat Vorrang, sonst einzelnes platzId; null = alle Plätze.
   let platzIds: (number | null)[];
   if (Array.isArray(body.platzIds)) {
     platzIds = body.platzIds.map((p: unknown) => Number(p));
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(datum) || !/^\d{2}:\d{2}$/.test(von) || !/^\d{2}:\d{2}$/.test(bis)) {
-    return NextResponse.json({ fehler: "Ungueltige Eingabe." }, { status: 400 });
+    return NextResponse.json({ fehler: "Ungültige Eingabe." }, { status: 400 });
   }
   if (!grund) return NextResponse.json({ fehler: "Bitte einen Grund angeben." }, { status: 400 });
   if (zeitTomin(bis) <= zeitTomin(von)) {
@@ -71,13 +71,13 @@ export async function DELETE(req: NextRequest) {
   const datum = req.nextUrl.searchParams.get("datum");
   const grund = req.nextUrl.searchParams.get("grund");
 
-  // Loeschen einzeln (id) oder gruppenweise (datum + grund) moeglich.
+  // Löschen einzeln (id) oder gruppenweise (datum + grund) möglich.
   if (Number.isInteger(id) && id > 0) {
     await prisma.sperrung.delete({ where: { id } });
   } else if (datum && grund) {
     await prisma.sperrung.deleteMany({ where: { datum, grund } });
   } else {
-    return NextResponse.json({ fehler: "Ungueltige Anfrage." }, { status: 400 });
+    return NextResponse.json({ fehler: "Ungültige Anfrage." }, { status: 400 });
   }
   return NextResponse.json({ ok: true });
 }

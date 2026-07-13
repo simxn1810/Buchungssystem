@@ -9,7 +9,7 @@ export type KontaktTyp = "email" | "telefon";
 export function erkenneKontaktTyp(kontakt: string): KontaktTyp | null {
   const k = kontakt.trim();
   if (EMAIL_RE.test(k)) return "email";
-  // Nur als Telefon werten, wenn ueberwiegend Ziffern.
+  // Nur als Telefon werten, wenn überwiegend Ziffern.
   const ziffern = (k.match(/[0-9]/g) || []).length;
   if (TEL_RE.test(k) && ziffern >= 6) return "telefon";
   return null;

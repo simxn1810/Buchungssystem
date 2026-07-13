@@ -4,7 +4,7 @@ import { istAdmin } from "@/lib/admin";
 
 export const dynamic = "force-dynamic";
 
-// Reihenfolge fuer eine sinnvolle Anzeige (Mo..Fr, Sa, So).
+// Reihenfolge für eine sinnvolle Anzeige (Mo..Fr, Sa, So).
 const REIHENFOLGE = ["montag", "dienstag", "mittwoch", "donnerstag", "freitag", "samstag", "sonntag"];
 
 export async function GET() {
@@ -21,7 +21,7 @@ export async function PUT(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ fehler: "Ungueltige Anfrage." }, { status: 400 });
+    return NextResponse.json({ fehler: "Ungültige Anfrage." }, { status: 400 });
   }
   const updates: { wochentag: string; code: string }[] = Array.isArray(body.updates)
     ? body.updates

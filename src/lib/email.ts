@@ -29,7 +29,7 @@ export async function sendeEmail({ to, subject, text }: MailInput): Promise<void
   }
 
   if (process.env.SMTP_HOST) {
-    // nodemailer nur dynamisch laden, damit es ohne SMTP nicht benoetigt wird.
+    // nodemailer nur dynamisch laden, damit es ohne SMTP nicht benötigt wird.
     const nodemailer = await import("nodemailer");
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -44,7 +44,7 @@ export async function sendeEmail({ to, subject, text }: MailInput): Promise<void
     return;
   }
 
-  // Fallback fuer lokale Entwicklung.
+  // Fallback für lokale Entwicklung.
   console.log("\n--- E-MAIL (kein Versand-Provider konfiguriert) ---");
   console.log(`An: ${to}`);
   console.log(`Betreff: ${subject}`);

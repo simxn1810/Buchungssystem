@@ -10,9 +10,9 @@ import {
 
 export type SlotStatus = "frei" | "belegt" | "gesperrt" | "abo" | "vergangen";
 
-// Entfernt Belegungen abgelaufener, nicht bestaetigter Buchungen und markiert
+// Entfernt Belegungen abgelaufener, nicht bestätigter Buchungen und markiert
 // diese als storniert. So werden reservierte Slots nach Ablauf der Code-Frist
-// wieder frei. Wird vor jeder Verfuegbarkeitspruefung/Buchung aufgerufen.
+// wieder frei. Wird vor jeder Verfügbarkeitsprüfung/Buchung aufgerufen.
 export async function aufraeumenAbgelaufen(): Promise<void> {
   const jetzt = new Date();
   const abgelaufen = await prisma.buchung.findMany({
@@ -60,7 +60,7 @@ async function aboSlotsFuerTag(platzId: number, datum: string): Promise<Set<stri
   return belegt;
 }
 
-// Status aller Slots eines Tages fuer einen Platz.
+// Status aller Slots eines Tages für einen Platz.
 export async function verfuegbarkeitFuerTag(
   platzId: number,
   datum: string
@@ -93,7 +93,7 @@ export async function verfuegbarkeitFuerTag(
   return result;
 }
 
-// Sind alle angegebenen Slots fuer einen Platz an einem Tag frei?
+// Sind alle angegebenen Slots für einen Platz an einem Tag frei?
 export async function slotsFrei(
   platzId: number,
   datum: string,
@@ -104,19 +104,19 @@ export async function slotsFrei(
 }
 
 // ---------------------------------------------------------------------------
-// Wochen-Uebersicht (Kalender)
+// Wochen-Übersicht (Kalender)
 // ---------------------------------------------------------------------------
 
 export type ZellStatus = "frei" | "belegt" | "gesperrt" | "abo" | "vergangen";
 export type WochenUebersicht = {
   tage: string[]; // 7 Datumswerte (Mo..So)
   zeiten: string[]; // 15-Min-Startzeiten "HH:MM"
-  plaetze: { id: number; name: string }[]; // Plaetze der Sportart (Spalten je Tag)
+  plaetze: { id: number; name: string }[]; // Plätze der Sportart (Spalten je Tag)
   // zellen[datum][platzId][zeit] = SlotStatus
   zellen: Record<string, Record<number, Record<string, SlotStatus>>>;
 };
 
-// Wochenuebersicht fuer eine Sportart ("tennis" | "squash") ab dem Montag der
+// Wochenübersicht für eine Sportart ("tennis" | "squash") ab dem Montag der
 // Woche, in der startDatum liegt. Je Tag, Platz und 15-Min-Slot der Status.
 export async function wochenUebersicht(
   typ: string,
@@ -139,7 +139,7 @@ export async function wochenUebersicht(
 
   for (const datum of tage) {
     zellen[datum] = {};
-    // Verfuegbarkeit je Platz einmal laden.
+    // Verfügbarkeit je Platz einmal laden.
     const verfProPlatz = await Promise.all(
       plaetze.map((p) => verfuegbarkeitFuerTag(p.id, datum))
     );

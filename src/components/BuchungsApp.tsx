@@ -105,14 +105,14 @@ export default function BuchungsApp({
     ladeVerfuegbarkeit();
   }, [ladeVerfuegbarkeit]);
 
-  // Aufeinanderfolgende freie Minuten ab dem gewaehlten Start.
+  // Aufeinanderfolgende freie Minuten ab dem gewählten Start.
   const freieMinutenAbStart = useMemo(() => {
     if (!startSlot || !verf) return 0;
     let count = 0;
     const idx = slotListe.indexOf(startSlot);
     if (idx < 0) return 0;
     for (let i = idx; i < slotListe.length; i++) {
-      // Slots muessen lueckenlos aufeinanderfolgen.
+      // Slots müssen lückenlos aufeinanderfolgen.
       if (i > idx && toMin(slotListe[i]) !== toMin(slotListe[i - 1]) + SLOT) break;
       if (verf[slotListe[i]] !== "frei") break;
       count += SLOT;
@@ -190,7 +190,7 @@ export default function BuchungsApp({
   async function absenden() {
     setFehler(null);
     if (!einwilligung) {
-      setFehler("Bitte der Datenschutzerklaerung zustimmen.");
+      setFehler("Bitte der Datenschutzerklärung zustimmen.");
       return;
     }
     setBusy(true);
@@ -237,7 +237,7 @@ export default function BuchungsApp({
       });
       const json = await res.json();
       if (!res.ok) {
-        setFehler(json.fehler || "Bestaetigung fehlgeschlagen.");
+        setFehler(json.fehler || "Bestätigung fehlgeschlagen.");
         return;
       }
       setBestaetigung(json.buchung);
@@ -277,7 +277,7 @@ export default function BuchungsApp({
         : "";
     return (
       <div className="rounded-lg border border-green-300 bg-green-50 p-5">
-        <h2 className="mb-3 text-xl font-bold text-green-800">Buchung bestaetigt!</h2>
+        <h2 className="mb-3 text-xl font-bold text-green-800">Buchung bestätigt!</h2>
         <dl className="space-y-1 text-sm text-gray-800">
           <Zeile label="Platz" wert={b.platzName} />
           <Zeile label="Datum" wert={formatDatum(b.datum)} />
@@ -286,10 +286,10 @@ export default function BuchungsApp({
             wert={`${b.startzeit} – ${minTo(toMin(b.startzeit) + b.dauerMinuten)} Uhr (${b.dauerMinuten} Min)`}
           />
           <Zeile
-            label="Leihschlaeger"
+            label="Leihschläger"
             wert={b.leihschlaegerAnzahl > 0 ? String(b.leihschlaegerAnzahl) : "keine"}
           />
-          <Zeile label="Baelle" wert={b.baelle ? "ja" : "nein"} />
+          <Zeile label="Bälle" wert={b.baelle ? "ja" : "nein"} />
         </dl>
         <p className="mt-4 rounded bg-verein-gelb/40 p-3 text-lg font-bold text-verein-blau">
           Vor Ort zu zahlen: {euro(b.gesamtpreisCent)} €
@@ -302,7 +302,7 @@ export default function BuchungsApp({
           </a>
         </div>
         <p className="mt-4 text-sm text-gray-600">
-          Bitte nach dem Spiel die Fenster schliessen und das Licht ausschalten. Vielen Dank!
+          Bitte nach dem Spiel die Fenster schließen und das Licht ausschalten. Vielen Dank!
         </p>
         <button
           onClick={neuStarten}
@@ -336,7 +336,7 @@ export default function BuchungsApp({
           disabled={busy || code.length !== 6}
           className="mt-4 w-full rounded bg-verein-blau px-4 py-3 font-semibold text-white disabled:opacity-50"
         >
-          {busy ? "Pruefe…" : "Buchung bestaetigen"}
+          {busy ? "Prüfe…" : "Buchung bestätigen"}
         </button>
         <button onClick={neuStarten} className="mt-2 w-full text-sm text-gray-500 underline">
           Abbrechen
@@ -379,12 +379,12 @@ export default function BuchungsApp({
         </label>
         <p className="mb-3 text-xs text-gray-500">
           {settings.smsAktiv
-            ? "Der Bestaetigungscode kommt per E-Mail oder SMS."
-            : "Der Bestaetigungscode wird per E-Mail versendet."}
+            ? "Der Bestätigungscode kommt per E-Mail oder SMS."
+            : "Der Bestätigungscode wird per E-Mail versendet."}
         </p>
 
         <label className="mb-3 block">
-          <span className="text-sm font-medium">Leihschlaeger</span>
+          <span className="text-sm font-medium">Leihschläger</span>
           <select
             value={leihschlaegerAnzahl}
             onChange={(e) => setLeihschlaegerAnzahl(Number(e.target.value))}
@@ -392,19 +392,19 @@ export default function BuchungsApp({
           >
             {[0, 1, 2, 3, 4].map((n) => (
               <option key={n} value={n}>
-                {n === 0 ? "keine" : `${n} Stueck`}
+                {n === 0 ? "keine" : `${n} Stück`}
               </option>
             ))}
           </select>
           <span className="text-xs text-gray-500">
-            1,- € pro Schlaeger und Stunde (anteilig).
+            1,- € pro Schläger und Stunde (anteilig).
           </span>
         </label>
 
         <label className="mb-3 flex items-center gap-2">
           <input type="checkbox" checked={baelle} onChange={(e) => setBaelle(e.target.checked)} />
           <span className="text-sm">
-            Baelle benoetigt{settings.ballPreisCent === 0 ? " (inklusive)" : ""}
+            Bälle benötigt{settings.ballPreisCent === 0 ? " (inklusive)" : ""}
           </span>
         </label>
 
@@ -425,21 +425,21 @@ export default function BuchungsApp({
             checked={ermaessigung}
             onChange={(e) => setErmaessigung(e.target.checked)}
           />
-          <span className="text-sm">Ermaessigung Schueler/Studenten (vor Ort nachweisen)</span>
+          <span className="text-sm">Ermäßigung Schüler/Studenten (vor Ort nachweisen)</span>
         </label>
 
         {preis && (
           <div className="mb-4 rounded border border-gray-200 p-3 text-sm">
             <Zeile label="Platz" wert={`${euro(preis.platzCent)} €`} />
             {preis.leihschlaegerCent > 0 && (
-              <Zeile label="Leihschlaeger" wert={`${euro(preis.leihschlaegerCent)} €`} />
+              <Zeile label="Leihschläger" wert={`${euro(preis.leihschlaegerCent)} €`} />
             )}
-            {preis.ballCent > 0 && <Zeile label="Baelle" wert={`${euro(preis.ballCent)} €`} />}
+            {preis.ballCent > 0 && <Zeile label="Bälle" wert={`${euro(preis.ballCent)} €`} />}
             {preis.mitgliedRabattCent > 0 && (
               <Zeile label="Mitglieder-Rabatt" wert={`– ${euro(preis.mitgliedRabattCent)} €`} />
             )}
             {preis.ermaessigungCent > 0 && (
-              <Zeile label="Ermaessigung" wert={`– ${euro(preis.ermaessigungCent)} €`} />
+              <Zeile label="Ermäßigung" wert={`– ${euro(preis.ermaessigungCent)} €`} />
             )}
             <div className="mt-2 border-t pt-2 text-base font-bold text-verein-blau">
               Vor Ort zu zahlen: {euro(preis.gesamtCent)} €
@@ -464,7 +464,7 @@ export default function BuchungsApp({
           <span className="text-sm">
             Ich habe die{" "}
             <a href="/datenschutz" target="_blank" className="text-verein-blau underline">
-              Datenschutzerklaerung
+              Datenschutzerklärung
             </a>{" "}
             gelesen und stimme der Verarbeitung meiner Daten zur Buchung zu.
           </span>
@@ -483,7 +483,7 @@ export default function BuchungsApp({
           onClick={() => setStep("auswahl")}
           className="mt-2 w-full text-sm text-gray-500 underline"
         >
-          Zurueck
+          Zurück
         </button>
       </div>
     );
@@ -517,15 +517,15 @@ export default function BuchungsApp({
 
       <div className="mb-3 flex flex-wrap gap-3 text-xs text-gray-600">
         <Legende klasse="bg-white border-verein-blau/40" text="frei" />
-        <Legende klasse="bg-verein-blau" text="ausgewaehlt" />
+        <Legende klasse="bg-verein-blau" text="ausgewählt" />
         <Legende klasse="bg-gray-200" text="belegt" />
         <Legende klasse="bg-amber-100" text="Abo" />
       </div>
 
       {ladeVerf ? (
-        <p className="py-8 text-center text-gray-500">Lade Verfuegbarkeit…</p>
+        <p className="py-8 text-center text-gray-500">Lade Verfügbarkeit…</p>
       ) : slotListe.length === 0 ? (
-        <p className="py-8 text-center text-gray-500">Keine Slots verfuegbar.</p>
+        <p className="py-8 text-center text-gray-500">Keine Slots verfügbar.</p>
       ) : (
         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
           {slotListe.map((slot) => (

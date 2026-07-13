@@ -9,10 +9,10 @@ export async function GET(req: NextRequest) {
   const datum = req.nextUrl.searchParams.get("datum") || "";
 
   if (!Number.isInteger(platzId) || platzId <= 0) {
-    return NextResponse.json({ fehler: "Ungueltiger Platz." }, { status: 400 });
+    return NextResponse.json({ fehler: "Ungültiger Platz." }, { status: 400 });
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(datum)) {
-    return NextResponse.json({ fehler: "Ungueltiges Datum." }, { status: 400 });
+    return NextResponse.json({ fehler: "Ungültiges Datum." }, { status: 400 });
   }
   if (!imBuchungshorizont(datum)) {
     return NextResponse.json({ slots: {}, ausserhalb: true });

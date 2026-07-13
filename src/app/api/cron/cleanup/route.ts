@@ -4,7 +4,7 @@ import { config } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 
-// Endpoint fuer die automatische DSGVO-Loeschung. Kann z. B. per Vercel Cron
+// Endpoint für die automatische DSGVO-Löschung. Kann z. B. per Vercel Cron
 // aufgerufen werden. Optional mit CRON_SECRET absichern.
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;

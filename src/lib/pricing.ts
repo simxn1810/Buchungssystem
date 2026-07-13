@@ -34,7 +34,7 @@ export type PreisParams = {
   ermaessigung: boolean;
 };
 
-// Findet den Tarif fuer einen konkreten Slot.
+// Findet den Tarif für einen konkreten Slot.
 function tarifFuerSlot(
   tarife: TarifZeile[],
   p: { sportart: string; saison: string; mitglied: boolean; wochentag: string; slot: string }
@@ -67,7 +67,7 @@ export function berechnePreis(params: PreisParams, tarife: TarifZeile[]): PreisA
     });
     if (!tarif) {
       throw new Error(
-        `Kein Tarif gefunden fuer ${params.sportart}/${params.saison}/` +
+        `Kein Tarif gefunden für ${params.sportart}/${params.saison}/` +
           `${params.mitglied ? "mitglied" : "gast"}/${params.wochentag} um ${slot}.`
       );
     }
@@ -81,7 +81,7 @@ export function berechnePreis(params: PreisParams, tarife: TarifZeile[]): PreisA
       );
     }
 
-    // Ermaessigung (Schueler/Studenten): werktags bis 17 Uhr sowie Sa/So.
+    // Ermäßigung (Schüler/Studenten): werktags bis 17 Uhr sowie Sa/So.
     if (params.ermaessigung) {
       const qualifiziert =
         params.wochentag === "wochenende" || zeitTomin(slot) < zeitTomin("17:00");
@@ -99,7 +99,7 @@ export function berechnePreis(params: PreisParams, tarife: TarifZeile[]): PreisA
   );
   const ballCent = params.baelle ? config.ballPreisCent : 0;
 
-  // Rabatte duerfen den Platzpreis nicht ins Negative ziehen.
+  // Rabatte dürfen den Platzpreis nicht ins Negative ziehen.
   const effektiveErmaessigung = Math.min(ermaessigungCent, platzCent);
   const effektiverMitgliedRabatt = Math.min(
     mitgliedRabattCent,
