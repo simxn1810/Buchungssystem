@@ -98,8 +98,6 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
       )}.${daten.tage[6].split("-")[1]}.${daten.tage[6].split("-")[0].slice(2)}`
     : "";
 
-  const mehrereProTag = (daten?.plaetze.length ?? 0) > 1;
-
   return (
     <div>
       <div className="mb-4 flex flex-wrap gap-2">
@@ -145,7 +143,7 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
             </colgroup>
             <thead>
               <tr>
-                <th rowSpan={mehrereProTag ? 2 : 1} className="bg-white p-1 text-gray-500"></th>
+                <th className="bg-white p-1 text-gray-500"></th>
                 {daten.tage.map((d) => {
                   const istHeute = d === heute;
                   return (
@@ -164,22 +162,6 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
                   );
                 })}
               </tr>
-              {mehrereProTag && (
-                <tr>
-                  {daten.tage.map((d) =>
-                    daten.plaetze.map((p, i) => (
-                      <th
-                        key={`${d}-${p.id}`}
-                        className={`p-0.5 text-[10px] font-normal text-gray-400 ${
-                          i === 0 ? "border-l-2 border-gray-300" : "border-l border-gray-100"
-                        }`}
-                      >
-                        {p.name}
-                      </th>
-                    ))
-                  )}
-                </tr>
-              )}
             </thead>
             <tbody>
               {daten.zeiten.map((zeit) => (
