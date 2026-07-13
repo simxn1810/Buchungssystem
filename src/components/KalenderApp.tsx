@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type ZellStatus = "frei" | "belegt" | "gesperrt" | "abo" | "vergangen";
 type Platz = { id: number; name: string };
@@ -70,24 +70,6 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
   const [daten, setDaten] = useState<Uebersicht | null>(null);
   const [lade, setLade] = useState(false);
 
-  // Höhe des Rasters wird an den verfügbaren Platz im Fenster angepasst,
-  // damit die komplette Woche ohne Scrollen sichtbar ist.
-  const gitterRef = useRef<HTMLDivElement>(null);
-  const [gitterHoehe, setGitterHoehe] = useState<number | null>(null);
-
-  useEffect(() => {
-    function berechneHoehe() {
-      const el = gitterRef.current;
-      if (!el) return;
-      const oben = el.getBoundingClientRect().top;
-      const verfuegbar = window.innerHeight - oben - 8;
-      setGitterHoehe(Math.max(verfuegbar, 240));
-    }
-    berechneHoehe();
-    window.addEventListener("resize", berechneHoehe);
-    return () => window.removeEventListener("resize", berechneHoehe);
-  }, [daten]);
-
   const heuteMontag = useMemo(() => montagDerWoche(heute), [heute]);
   const maxMontag = useMemo(() => montagDerWoche(maxDatum), [maxDatum]);
   const kannZurueck = start > heuteMontag;
@@ -153,12 +135,78 @@ export default function KalenderApp({ heute, maxDatum }: { heute: string; maxDat
       {lade || !daten ? (
         <p className="py-8 text-center text-gray-500">Lade Übersicht…</p>
       ) : (
-        <div ref={gitterRef} style={{ height: gitterHoehe ?? undefined }} className="overflow-x-auto overflow-y-hidden">
-          <GitterAnsicht
-            daten={daten}
-            heute={heute}
-            mehrereProTag={mehrereProTag}
-          />
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-center text-xs">
+            <thead>
+              <tr>
+                <th rowSpan={mehrereProTag ? 2 : 1} className="sticky left-0 bg-white p-1 text-gray-500"></th>
+                {daten.tage.map((d) => {
+                  const istHeute = d === heute;
+                  return (
+                    <th
+                      key={d}
+                      colSpan={daten.plaetze.length}
+                      className="border-l-2 border-gray-300 p-1"
+                    >
+                      <div className={istHeute ? "font-bold text-verein-blau" : "text-gray-600"}>
+                        {tagKurz(d)}
+                      </div>
+                      <div className={istHeute ? "font-bold text-verein-blau" : "text-gray-400"}>
+                        {tagNummer(d)}.{d.split("-")[1]}.
+                      </div>
+                    </th>
+                  );
+                })}
+              </tr>
+              {mehrereProTag && (
+                <tr>
+                  {daten.tage.map((d) =>
+                    daten.plaetze.map((p, i) => (
+                      <th
+                        key={`${d}-${p.id}`}
+                        className={`p-0.5 text-[10px] font-normal text-gray-400 ${
+                          i === 0 ? "border-l-2 border-gray-300" : "border-l border-gray-100"
+                        }`}
+                      >
+                        {p.name}
+                      </th>
+                    ))
+                  )}
+                </tr>
+              )}
+            </thead>
+            <tbody>
+              {daten.zeiten.map((zeit) => (
+                <tr key={zeit}>
+                  <td className="sticky left-0 bg-white p-1 pr-2 text-right align-top font-medium leading-none text-gray-500">
+                    <span className="-translate-y-1/2 inline-block">{zeit}</span>
+                  </td>
+                  {daten.tage.map((d) =>
+                    daten.plaetze.map((p, i) => {
+                      const status = daten.zellen[d]?.[p.id]?.[zeit];
+                      return (
+                        <td
+                          key={`${d}-${p.id}`}
+                          className={`p-0.5 ${
+                            i === 0 ? "border-l-2 border-gray-300" : "border-l border-gray-100"
+                          }`}
+                        >
+                          <div
+                            className={`rounded py-0.5 text-[10px] font-medium ${zellKlasse(
+                              status ?? "vergangen",
+                              i
+                            )}`}
+                          >
+                            {zellInhalt(status ?? "vergangen")}
+                          </div>
+                        </td>
+                      );
+                    })
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
@@ -194,110 +242,5 @@ function Legende({ klasse, text }: { klasse: string; text: string }) {
       <span className={`inline-block h-3 w-3 rounded border ${klasse}`} />
       {text}
     </span>
-  );
-}
-
-// Kalenderraster als CSS-Grid: Zeitzeilen bekommen "1fr" und teilen sich so
-// gleichmäßig die verfügbare Höhe des Elternelements auf – dadurch passt die
-// ganze Woche ohne Scrollen ins Fenster, statt eine feste Zeilenhöhe zu erzwingen.
-function GitterAnsicht({
-  daten,
-  heute,
-  mehrereProTag,
-}: {
-  daten: Uebersicht;
-  heute: string;
-  mehrereProTag: boolean;
-}) {
-  const kopfZeilen = mehrereProTag ? 2 : 1;
-  const spaltenProTag = daten.plaetze.length;
-  const gesamtSpalten = daten.tage.length * spaltenProTag;
-
-  function spalte(tagIndex: number, platzIndex: number) {
-    return 2 + tagIndex * spaltenProTag + platzIndex;
-  }
-
-  return (
-    <div
-      className="grid h-full min-w-max text-center text-xs"
-      style={{
-        gridTemplateColumns: `2.5rem repeat(${gesamtSpalten}, minmax(1.5rem, 1fr))`,
-        gridTemplateRows: `repeat(${kopfZeilen}, auto) repeat(${daten.zeiten.length}, minmax(0, 1fr))`,
-      }}
-    >
-      <div
-        className="sticky left-0 z-10 bg-white"
-        style={{ gridColumn: 1, gridRow: `1 / span ${kopfZeilen}` }}
-      />
-
-      {daten.tage.map((d, tagIndex) => {
-        const istHeute = d === heute;
-        return (
-          <div
-            key={d}
-            className="border-l-2 border-gray-300 p-1"
-            style={{ gridColumn: `${spalte(tagIndex, 0)} / span ${spaltenProTag}`, gridRow: 1 }}
-          >
-            <div className={istHeute ? "font-bold text-verein-blau" : "text-gray-600"}>
-              {tagKurz(d)}
-            </div>
-            <div className={istHeute ? "font-bold text-verein-blau" : "text-gray-400"}>
-              {tagNummer(d)}.{d.split("-")[1]}.
-            </div>
-          </div>
-        );
-      })}
-
-      {mehrereProTag &&
-        daten.tage.map((d, tagIndex) =>
-          daten.plaetze.map((p, i) => (
-            <div
-              key={`${d}-${p.id}-kopf`}
-              className={`p-0.5 text-[10px] font-normal text-gray-400 ${
-                i === 0 ? "border-l-2 border-gray-300" : "border-l border-gray-100"
-              }`}
-              style={{ gridColumn: spalte(tagIndex, i), gridRow: 2 }}
-            >
-              {p.name}
-            </div>
-          ))
-        )}
-
-      {daten.zeiten.map((zeit, zeitIndex) => (
-        <div
-          key={`${zeit}-label`}
-          className="sticky left-0 z-10 flex items-center justify-end bg-white pr-2 font-medium leading-none text-gray-500"
-          style={{ gridColumn: 1, gridRow: kopfZeilen + 1 + zeitIndex }}
-        >
-          {zeit}
-        </div>
-      ))}
-
-      {daten.tage.map((d, tagIndex) =>
-        daten.plaetze.map((p, i) =>
-          daten.zeiten.map((zeit, zeitIndex) => {
-            const status = daten.zellen[d]?.[p.id]?.[zeit];
-            return (
-              <div
-                key={`${d}-${p.id}-${zeit}`}
-                className={`flex items-center justify-center p-0.5 ${
-                  i === 0 ? "border-l-2 border-gray-300" : "border-l border-gray-100"
-                }`}
-                style={{ gridColumn: spalte(tagIndex, i), gridRow: kopfZeilen + 1 + zeitIndex }}
-              >
-                <div
-                  className={`flex h-full w-full items-center justify-center rounded text-[10px] font-medium ${zellKlasse(
-                    status ?? "vergangen",
-                    i
-                  )}`}
-                >
-                  {zellInhalt(status ?? "vergangen")}
-                </div>
-              </div>
-            );
-          })
-        )
-      )}
-    </div>
   );
 }
