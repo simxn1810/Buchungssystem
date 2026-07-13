@@ -330,7 +330,7 @@ function SperrungenTab({ plaetze, heute }: { plaetze: Platz[]; heute: string }) 
         <button
           onClick={anlegen}
           disabled={!grund}
-          className="w-full rounded bg-verein-blau px-4 py-2 font-semibold text-white disabled:opacity-50"
+          className="w-full rounded bg-verein-gelb px-4 py-2 font-semibold text-verein-blau disabled:opacity-50"
         >
           Sperrzeit anlegen
         </button>
@@ -439,7 +439,7 @@ function TarifeTab() {
       </div>
       <button
         onClick={speichern}
-        className="mt-4 rounded bg-verein-blau px-4 py-2 font-semibold text-white"
+        className="mt-4 rounded bg-verein-gelb px-4 py-2 font-semibold text-verein-blau"
       >
         Speichern
       </button>
@@ -512,7 +512,7 @@ function ZugangscodesTab() {
       </div>
       <button
         onClick={speichern}
-        className="mt-4 rounded bg-verein-blau px-4 py-2 font-semibold text-white"
+        className="mt-4 rounded bg-verein-gelb px-4 py-2 font-semibold text-verein-blau"
       >
         Speichern
       </button>
@@ -682,7 +682,7 @@ function AbosTab({ plaetze, heute }: { plaetze: Platz[]; heute: string }) {
         <button
           onClick={anlegen}
           disabled={!titel}
-          className="w-full rounded bg-verein-blau px-4 py-2 font-semibold text-white disabled:opacity-50"
+          className="w-full rounded bg-verein-gelb px-4 py-2 font-semibold text-verein-blau disabled:opacity-50"
         >
           Abo anlegen
         </button>

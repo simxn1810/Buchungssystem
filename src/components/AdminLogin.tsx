@@ -44,7 +44,7 @@ export default function AdminLogin() {
       <button
         onClick={login}
         disabled={busy || !passwort}
-        className="mt-4 w-full rounded bg-verein-blau px-4 py-2 font-semibold text-white disabled:opacity-50"
+        className="mt-4 w-full rounded bg-verein-gelb px-4 py-2 font-semibold text-verein-blau disabled:opacity-50"
       >
         {busy ? "…" : "Anmelden"}
       </button>

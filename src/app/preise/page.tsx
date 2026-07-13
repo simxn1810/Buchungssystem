@@ -150,7 +150,7 @@ export default function PreisePage() {
 
       <Link
         href="/"
-        className="inline-block rounded bg-verein-blau px-4 py-2 font-semibold text-white"
+        className="inline-block rounded bg-verein-gelb px-4 py-2 font-semibold text-verein-blau"
       >
         Zur Buchung
       </Link>

@@ -115,7 +115,7 @@ export default function MeineBuchungen() {
         <button
           onClick={suchen}
           disabled={busy || !name || !email}
-          className="w-full rounded bg-verein-blau px-4 py-3 font-semibold text-white disabled:opacity-50"
+          className="w-full rounded bg-verein-gelb px-4 py-3 font-semibold text-verein-blau disabled:opacity-50"
         >
           {busy ? "Suche…" : "Buchungen anzeigen"}
         </button>

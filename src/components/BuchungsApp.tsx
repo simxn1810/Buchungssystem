@@ -300,7 +300,7 @@ export default function BuchungsApp({
         </p>
         <button
           onClick={neuStarten}
-          className="mt-5 rounded bg-verein-blau px-4 py-2 font-semibold text-white"
+          className="mt-5 rounded bg-verein-gelb px-4 py-2 font-semibold text-verein-blau"
         >
           Neue Buchung
         </button>
@@ -328,7 +328,7 @@ export default function BuchungsApp({
         <button
           onClick={bestaetigen}
           disabled={busy || code.length !== 6}
-          className="mt-4 w-full rounded bg-verein-blau px-4 py-3 font-semibold text-white disabled:opacity-50"
+          className="mt-4 w-full rounded bg-verein-gelb px-4 py-3 font-semibold text-verein-blau disabled:opacity-50"
         >
           {busy ? "Prüfe…" : "Buchung bestätigen"}
         </button>
@@ -455,7 +455,7 @@ export default function BuchungsApp({
         <button
           onClick={absenden}
           disabled={busy || !name || !kontakt || !einwilligung}
-          className="w-full rounded bg-verein-blau px-4 py-3 font-semibold text-white disabled:opacity-50"
+          className="w-full rounded bg-verein-gelb px-4 py-3 font-semibold text-verein-blau disabled:opacity-50"
         >
           {busy ? "Sende Code…" : "Code anfordern"}
         </button>
@@ -545,7 +545,7 @@ export default function BuchungsApp({
               setFehler(null);
               setStep("details");
             }}
-            className="mt-3 w-full rounded bg-verein-blau px-4 py-3 font-semibold text-white"
+            className="mt-3 w-full rounded bg-verein-gelb px-4 py-3 font-semibold text-verein-blau"
           >
             Weiter
           </button>

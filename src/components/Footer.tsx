@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { VEREIN } from "@/lib/config";
 
@@ -5,7 +6,10 @@ export default function Footer() {
   return (
     <footer className="mt-12 border-t border-gray-200 bg-white">
       <div className="mx-auto max-w-3xl px-4 py-8 text-sm text-gray-600">
-        <p className="font-semibold text-verein-blau">{VEREIN.name}</p>
+        <div className="mb-2 flex items-center gap-2">
+          <Image src="/logo-badge-blau.png" alt="" width={40} height={25} />
+          <p className="font-semibold text-verein-blau">{VEREIN.name}</p>
+        </div>
         <p>
           {VEREIN.adresse} ({VEREIN.naviHinweis})
         </p>
